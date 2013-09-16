@@ -5,9 +5,13 @@
 ###
 require 'pp'
 
-filename = ARGV[0]
+filename = ARGV[1]
 size = File.size?(filename)
 
 binary = File.binread(filename)
 
-puts binary.unpack("C*")
+if ARGV[0] == "u"
+ puts binary.unpack("C*")
+else
+ puts binary.unpack("c*")
+end
