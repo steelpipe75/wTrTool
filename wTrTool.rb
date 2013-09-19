@@ -6,7 +6,6 @@
 require 'pp'
 
 filename = ARGV[1]
-size = File.size?(filename)
 
 binary = File.binread(filename)
 
