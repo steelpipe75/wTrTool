@@ -13,7 +13,7 @@ inputfilename = "MemTrace.dat"
 outputfilename = "MemTool.txt"
 patternfilename = "wTrToolFormat.yaml"
 patternname = "sample1"
-format_str = "C"
+format_str = ""
 
 opt.on('-i inputfile') { |v| inputfilename = v }
 opt.on('-o outputfile') { |v| outputfilename = v }
@@ -22,10 +22,13 @@ opt.on('-p patternname') { |v| patternname = v }
 
 argv = opt.parse(ARGV)
 
-printf("inputfile = \"%s\"\n",inputfilename)
-binary = File.binread(inputfilename)
+printf("inputfile\t= \"%s\"\n",inputfilename)
+printf("outputfile\t= \"%s\"\n",outputfilename)
+printf("patternfile\t= \"%s\"\n",patternfilename)
+printf("patternname\t= \"%s\"\n",patternname)
 
-printf("patternfile = \"%s\"\n",patternfilename)
+# format
+
 f_file = File.read(patternfilename)
 
 yaml = ''
@@ -36,9 +39,16 @@ end
 
 data = YAML.load(yaml)
 
+pattern = data[patternname]
+if pattern == nil then
+  puts "Error: patten not found"
+  exit(1)
+end
+
 header = []
 format = []
-data[patternname].each do |member|
+
+pattern.each do |member|
   header.push member["name"]
   format.push member["type"]
 end
@@ -46,7 +56,9 @@ end
 out_str = header.join("\t") + "\n"
 format_str = format.join
 
-printf("outputfile = \"%s\"\n",outputfilename)
+# convert
+
+binary = File.binread(inputfilename)
 o_file = File.open(outputfilename,"w")
 
 o_file.write out_str
