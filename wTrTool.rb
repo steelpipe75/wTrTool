@@ -29,7 +29,7 @@ printf("format = \"%s\"\n",format)
 while binary.size > 0 do
 # pp binary
 str = binary.unpack(format)
-o_file.puts(str)
+o_file.printf("%s\n",str)
 str2 = str.pack(format)
 binary2 = binary[str2.size..binary.size]
 binary = binary2
