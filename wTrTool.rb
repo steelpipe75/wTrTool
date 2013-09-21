@@ -15,10 +15,10 @@ patternfilename = "wTrToolFormat.yaml"
 patternname = "sample1"
 format_str = "C"
 
-opt.on('-i inputfile') {|v| inputfilename = v }
-opt.on('-o outputfile') {|v| outputfilename = v }
-opt.on('-f patternfile') {|v| patternfilename = v }
-opt.on('-p patternname') {|v| patternname = v }
+opt.on('-i inputfile') { |v| inputfilename = v }
+opt.on('-o outputfile') { |v| outputfilename = v }
+opt.on('-f patternfile') { |v| patternfilename = v }
+opt.on('-p patternname') { |v| patternname = v }
 
 argv = opt.parse(ARGV)
 
