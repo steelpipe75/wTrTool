@@ -1,0 +1,10 @@
+name:	sample
+format:	
+	-	type:	C
+		name:	a
+	-	type:	c
+		name:	b
+	-	type:	v
+		name:	c
+	-	type:	V
+		name:	d
