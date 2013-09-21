@@ -27,13 +27,18 @@ o_file = File.open(outputfilename,"w")
 printf("format = \"%s\"\n",format)
 
 while binary.size > 0 do
-# pp binary
-str = binary.unpack(format)
-o_file.printf("%s\n",str)
-str2 = str.pack(format)
-binary2 = binary[str2.size..binary.size]
-binary = binary2
-# pp binary
+  # pp binary
+  str = binary.unpack(format)
+  
+  str.each do |s|
+    o_file.printf("%s\t",s)
+  end
+  o_file.printf("\n")
+  
+  str2 = str.pack(format)
+  binary2 = binary[str2.size..binary.size]
+  binary = binary2
+  # pp binary
 end
 
 o_file.close
