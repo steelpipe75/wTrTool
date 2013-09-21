@@ -1,4 +1,4 @@
-a	b	c	d
+UINT8	SINT8	UINT16	UINT32
 1	-1	1	1
 2	-2	2	2
 3	-3	3	3

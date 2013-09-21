@@ -12,11 +12,13 @@ opt = OptionParser.new
 inputfilename = "MemTrace.dat"
 outputfilename = "MemTool.txt"
 patternfilename = "wTrToolFormat.yaml"
+patternname = "sample1"
 format_str = "C"
 
 opt.on('-i inputfile') {|v| inputfilename = v }
 opt.on('-o outputfile') {|v| outputfilename = v }
 opt.on('-f patternfile') {|v| patternfilename = v }
+opt.on('-p patternname') {|v| patternname = v }
 
 argv = opt.parse(ARGV)
 
@@ -36,7 +38,7 @@ data = YAML.load(yaml)
 
 header = []
 format = []
-data["format"].each do |member|
+data[patternname].each do |member|
   header.push member["name"]
   format.push member["type"]
 end

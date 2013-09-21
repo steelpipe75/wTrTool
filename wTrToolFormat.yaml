@@ -1,10 +1,19 @@
-name:	sample
-format:	
+sample1:
 	-	type:	C
-		name:	a
+		name:	UINT8
 	-	type:	c
-		name:	b
+		name:	SINT8
 	-	type:	v
-		name:	c
+		name:	UINT16
 	-	type:	V
-		name:	d
+		name:	UINT32
+
+sample2:
+	-	type:	c
+		name:	SINT8
+	-	type:	C
+		name:	UINT8
+	-	type:	v
+		name:	UINT16
+	-	type:	V
+		name:	UINT32
