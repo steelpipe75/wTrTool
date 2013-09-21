@@ -14,6 +14,7 @@ outputfilename = "MemTool.txt"
 patternfilename = "wTrToolFormat.yaml"
 patternname = "sample1"
 format_str = ""
+pattern = nil
 
 opt.on('-i inputfile') { |v| inputfilename = v }
 opt.on('-o outputfile') { |v| outputfilename = v }
@@ -39,7 +40,12 @@ end
 
 data = YAML.load(yaml)
 
-pattern = data[patternname]
+data.each do |ptn|
+  if ptn["name"] == patternname then
+    pattern = ptn["format"]
+  end
+end
+
 if pattern == nil then
   puts "Error: patten not found"
   exit(1)
