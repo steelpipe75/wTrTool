@@ -30,10 +30,10 @@ while binary.size > 0 do
   # pp binary
   str = binary.unpack(format)
   
-  str.each do |s|
-    o_file.printf("%s\t",s)
-  end
-  o_file.printf("\n")
+  out_str = str.join("\t") + "\n"
+  
+  o_file.write out_str
+  # puts out_str
   
   str2 = str.pack(format)
   binary2 = binary[str2.size..binary.size]
