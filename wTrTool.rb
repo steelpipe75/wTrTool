@@ -5,20 +5,35 @@
 ###
 require 'pp'
 require 'optparse'
+
 opt = OptionParser.new
 
-filename = "MemTrace.dat"
-format = false
+inputfilename = "MemTrace.dat"
+outputfilename = "MemTool.txt"
+format = "C"
 
-opt.on('-f VAL') {|v| filename = v }
-opt.on('-u') {|v| format = v }
+opt.on('-i inputfile') {|v| inputfilename = v }
+opt.on('-o outputfile') {|v| outputfilename = v }
+opt.on('-f format') {|v| format = v }
 
 argv = opt.parse(ARGV)
 
-binary = File.binread(filename)
+printf("inputfile = \"%s\"\n",inputfilename)
+binary = File.binread(inputfilename)
 
-if format== true
- puts binary.unpack("C*")
-else
- puts binary.unpack("c*")
+printf("outputfile = \"%s\"\n",outputfilename)
+o_file = File.open(outputfilename,"w")
+
+printf("format = \"%s\"\n",format)
+
+while binary.size > 0 do
+# pp binary
+str = binary.unpack(format)
+o_file.puts(str)
+str2 = str.pack(format)
+binary2 = binary[str2.size..binary.size]
+binary = binary2
+# pp binary
 end
+
+o_file.close
