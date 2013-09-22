@@ -70,10 +70,11 @@ errors = validator.validate(data)
 if !errors || errors.empty? then
 else
   errors.each do |error|
-    puts "Error: patternfile invalid"
+    puts ""
+    puts "Error: invalid pattern file"
     printf( "\t\"%s\" [%s}] %s\n",patternfilename,error.path,error.message)
-    exit(1)
   end
+  exit(1)
 end
 
 data.each do |ptn|
@@ -83,7 +84,9 @@ data.each do |ptn|
 end
 
 if pattern == nil then
-  puts "Error: patten not found"
+  puts ""
+  puts "Error: pattern not found"
+  printf("\tpatternfile = \"%s\", patternname = \"%s\"\n",patternfilename,patternname)
   exit(1)
 end
 
