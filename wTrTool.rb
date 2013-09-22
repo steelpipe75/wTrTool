@@ -6,6 +6,7 @@
 require 'pp'
 require 'optparse'
 require 'yaml'
+require 'kwalify'
 
 opt = OptionParser.new
 
@@ -28,17 +29,52 @@ printf("outputfile\t= \"%s\"\n",outputfilename)
 printf("patternfile\t= \"%s\"\n",patternfilename)
 printf("patternname\t= \"%s\"\n",patternname)
 
+# schema
+
+schema_def = <<END
+type:   seq
+sequence:
+    -   type:   map
+        mapping:
+            "name":
+                required:   true
+                unique: yes
+            "format":
+                required:   true
+                type:   seq
+                sequence:
+                    -   type:   map
+                        mapping:
+                            "name":
+                                required:   true
+                            "type":
+                                required:   true
+END
+
+schema = YAML.load(schema_def)
+validator = Kwalify::Validator.new(schema)
+
 # format
 
 f_file = File.read(patternfilename)
 
-yaml = ''
+yaml = ""
 
 f_file.each_line do |line|
   yaml << line.gsub(/([^\t]{8})|([^\t]*)\t/n) { [$+].pack("A8") }
 end
 
 data = YAML.load(yaml)
+
+errors = validator.validate(data)
+if !errors || errors.empty? then
+else
+  errors.each do |error|
+    puts "Error: patternfile invalid"
+    printf( "\t\"%s\" [%s}] %s\n",patternfilename,error.path,error.message)
+    exit(1)
+  end
+end
 
 data.each do |ptn|
   if ptn["name"] == patternname then
