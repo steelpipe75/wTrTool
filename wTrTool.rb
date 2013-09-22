@@ -46,7 +46,6 @@ sequence:
                     -   type:   map
                         mapping:
                             "name":
-                                required:   true
                             "type":
                                 required:   true
 END
