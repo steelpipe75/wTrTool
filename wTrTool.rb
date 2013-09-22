@@ -82,7 +82,7 @@ header = []
 format = []
 
 pattern.each do |member|
-  header.push member["name"]
+  header.push member["label"]
   format.push member["type"]
 end
 

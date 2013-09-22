@@ -12,7 +12,7 @@ sequence:
 				sequence:
 					-	type:	map
 						mapping:
-							"name":
+							"label":
 								type:	str
 							"type":
 								required:	true

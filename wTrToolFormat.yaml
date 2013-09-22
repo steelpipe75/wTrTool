@@ -2,21 +2,21 @@
 	name:	sample1
 	format:
 		-	type:	C
-			name:	UINT8
+			label:	UINT8
 		-	type:	c
-			name:	SINT8
+			label:	SINT8
 		-	type:	v
-			name:	UINT16
+			label:	UINT16
 		-	type:	V
-			name:	UINT32
+			label:	UINT32
 -
 	name:	sample2
 	format:
 		-	type:	c
-			name:	SINT8
+			label:	SINT8
 		-	type:	C
-			name:	UINT8
+			label:	UINT8
 		-	type:	v
-			name:	UINT16
+			label:	UINT16
 		-	type:	V
-			name:	UINT32
+			label:	UINT32
