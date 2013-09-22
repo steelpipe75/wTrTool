@@ -57,9 +57,8 @@ data = YAML.load(yaml)
 errors = validator.validate(data)
 if !errors || errors.empty? then
 else
+  puts "Error: invalid pattern file"
   errors.each do |error|
-    puts ""
-    puts "Error: invalid pattern file"
     printf( "\t\"%s\" [%s}] %s\n",patternfilename,error.path,error.message)
   end
   exit(1)
@@ -72,7 +71,6 @@ data.each do |ptn|
 end
 
 if pattern == nil then
-  puts ""
   puts "Error: pattern not found"
   printf("\tpatternfile = \"%s\", patternname = \"%s\"\n",patternfilename,patternname)
   exit(1)
