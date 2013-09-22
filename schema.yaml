@@ -1,0 +1,18 @@
+type:	seq
+sequence:
+	-	type:	map
+		mapping:
+			"name":
+				required:	true
+				unique:	yes
+				type:	str
+			"format":
+				required:	true
+				type:	seq
+				sequence:
+					-	type:	map
+						mapping:
+							"name":
+								type:	str
+							"type":
+								required:	true

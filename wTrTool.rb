@@ -31,24 +31,13 @@ printf("patternname\t= \"%s\"\n",patternname)
 
 # schema
 
-schema_def = <<END
-type:   seq
-sequence:
-    -   type:   map
-        mapping:
-            "name":
-                required:   true
-                unique: yes
-            "format":
-                required:   true
-                type:   seq
-                sequence:
-                    -   type:   map
-                        mapping:
-                            "name":
-                            "type":
-                                required:   true
-END
+s_file = File.read("schema.yaml")
+
+schema_def = ""
+
+s_file.each_line do |line|
+  schema_def << line.gsub(/([^\t]{8})|([^\t]*)\t/n) { [$+].pack("A8") }
+end
 
 schema = YAML.load(schema_def)
 validator = Kwalify::Validator.new(schema)
