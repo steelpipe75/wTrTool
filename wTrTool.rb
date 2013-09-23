@@ -13,14 +13,37 @@ opt = OptionParser.new
 inputfilename = "MemTrace.dat"
 outputfilename = "MemTool.txt"
 patternfilename = "wTrToolFormat.yaml"
-patternname = "sample1"
-format_str = ""
+patternname = "sample"
 pattern = nil
+endian = "little"
+
+format_str = { 
+  "UINT8"   => {"little" => "C", "big" => "C", "pack" =>"C", "unpack" =>"C", "sprintf" => "%d",  },
+  "UINT16"  => {"little" => "v", "big" => "n", "pack" =>"v", "unpack" =>"S", "sprintf" => "%d",  },
+  "UINT32"  => {"little" => "V", "big" => "N", "pack" =>"V", "unpack" =>"I", "sprintf" => "%d",  },
+  "SINT8"   => {"little" => "C", "big" => "C", "pack" =>"C", "unpack" =>"c", "sprintf" => "%d",  },
+  "SINT16"  => {"little" => "v", "big" => "n", "pack" =>"v", "unpack" =>"s", "sprintf" => "%d",  },
+  "SINT32"  => {"little" => "V", "big" => "N", "pack" =>"V", "unpack" =>"i", "sprintf" => "%d",  },
+  "BIT8"    => {"little" => "C", "big" => "C", "pack" =>"C", "unpack" =>"C", "sprintf" => "%#b", },
+  "BIT16"   => {"little" => "v", "big" => "n", "pack" =>"v", "unpack" =>"s", "sprintf" => "%#b", },
+  "BIT32"   => {"little" => "V", "big" => "N", "pack" =>"V", "unpack" =>"i", "sprintf" => "%#b", },
+  "OCT8"    => {"little" => "C", "big" => "C", "pack" =>"C", "unpack" =>"C", "sprintf" => "%#o", },
+  "OCT16"   => {"little" => "v", "big" => "n", "pack" =>"v", "unpack" =>"s", "sprintf" => "%#o", },
+  "OCT32"   => {"little" => "V", "big" => "N", "pack" =>"V", "unpack" =>"i", "sprintf" => "%#o", },
+  "HEX8"    => {"little" => "C", "big" => "C", "pack" =>"C", "unpack" =>"C", "sprintf" => "%#x", },
+  "HEX16"   => {"little" => "v", "big" => "n", "pack" =>"v", "unpack" =>"s", "sprintf" => "%#x", },
+  "HEX32"   => {"little" => "V", "big" => "N", "pack" =>"V", "unpack" =>"i", "sprintf" => "%#x", },
+  "DUMMY8"  => {"little" => "C", "big" => "C", "pack" =>"C", "unpack" =>"C", "sprintf" => "",    },
+  "DUMMY16" => {"little" => "v", "big" => "n", "pack" =>"v", "unpack" =>"s", "sprintf" => "",    },
+  "DUMMY32" => {"little" => "V", "big" => "N", "pack" =>"V", "unpack" =>"i", "sprintf" => "",    },
+}
 
 opt.on('-i inputfile') { |v| inputfilename = v }
 opt.on('-o outputfile') { |v| outputfilename = v }
 opt.on('-f patternfile') { |v| patternfilename = v }
 opt.on('-p patternname') { |v| patternname = v }
+opt.on('-l') { endian = "little" }
+opt.on('-b') { endian = "big" }
 
 argv = opt.parse(ARGV)
 
@@ -52,9 +75,9 @@ f_file.each_line do |line|
   yaml << line.gsub(/([^\t]{8})|([^\t]*)\t/n) { [$+].pack("A8") }
 end
 
-data = YAML.load(yaml)
+yaml_data = YAML.load(yaml)
 
-errors = validator.validate(data)
+errors = validator.validate(yaml_data)
 if !errors || errors.empty? then
 else
   puts "Error: invalid pattern file"
@@ -64,7 +87,7 @@ else
   exit(1)
 end
 
-data.each do |ptn|
+yaml_data.each do |ptn|
   if ptn["name"] == patternname then
     pattern = ptn["format"]
   end
@@ -80,33 +103,56 @@ header = []
 format = []
 
 pattern.each do |member|
-  header.push member["label"]
+  case member["type"]
+  when *["DUMMY8", "DUMMY16", "DUMMY32"]
+  else
+    header.push member["label"]
+  end
   format.push member["type"]
 end
-
-out_str = header.join("\t") + "\n"
-format_str = format.join
 
 # convert
 
 binary = File.binread(inputfilename)
 o_file = File.open(outputfilename,"w")
 
+out_str = header.join("\t") + "\n"
 o_file.write out_str
 
 while binary.size > 0 do
-  # pp binary
-  str = binary.unpack(format_str)
+  str = []
+  
+  format.each do |fmt|
+    f = format_str[fmt]
+#   p f
+    template = f[endian]
+#   p template
+    data = binary.unpack(template)
+#   p sprintf("hex = %x", data[0])
+#   p sprintf("dec = %d", data[0])
+#   p sprintf("oct = %o", data[0])
+#   p sprintf("bit = %b", data[0])
+#   p data.pack(f["pack"]).unpack(f["unpack"])
+    num = data.pack(f["pack"]).unpack(f["unpack"])
+#   p f["sprintf"]
+#   p num[0]
+    case fmt
+    when *["DUMMY8", "DUMMY16", "DUMMY32"]
+    else
+      str.push sprintf(f["sprintf"], num[0])
+    end
+    cut = data.pack(template)
+#   p cut
+#   p binary
+    binary2 = binary[cut.size..binary.size]
+    binary = binary2
+#   p binary
+  end
   
   out_str = str.join("\t") + "\n"
   
   o_file.write out_str
   # puts out_str
-  
-  str2 = str.pack(format_str)
-  binary2 = binary[str2.size..binary.size]
-  binary = binary2
-  # pp binary
 end
 
 o_file.close
