@@ -124,35 +124,22 @@ while binary.size > 0 do
   
   format.each do |fmt|
     f = format_str[fmt]
-#   p f
     template = f[endian]
-#   p template
     data = binary.unpack(template)
-#   p sprintf("hex = %x", data[0])
-#   p sprintf("dec = %d", data[0])
-#   p sprintf("oct = %o", data[0])
-#   p sprintf("bit = %b", data[0])
-#   p data.pack(f["pack"]).unpack(f["unpack"])
     num = data.pack(f["pack"]).unpack(f["unpack"])
-#   p f["sprintf"]
-#   p num[0]
     case fmt
     when *["DUMMY8", "DUMMY16", "DUMMY32"]
     else
       str.push sprintf(f["sprintf"], num[0])
     end
     cut = data.pack(template)
-#   p cut
-#   p binary
     binary2 = binary[cut.size..binary.size]
     binary = binary2
-#   p binary
   end
   
   out_str = str.join("\t") + "\n"
   
   o_file.write out_str
-  # puts out_str
 end
 
 o_file.close
