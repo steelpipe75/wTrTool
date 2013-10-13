@@ -38,6 +38,8 @@ format_str = {
   "DUMMY32" => {"little" => "V", "big" => "N", "pack" =>"V", "unpack" =>"i", "sprintf" => "",    },
 }
 
+dummy = ["DUMMY8", "DUMMY16", "DUMMY32"]
+
 opt.on('-i inputfile') { |v| inputfilename = v }
 opt.on('-o outputfile') { |v| outputfilename = v }
 opt.on('-f patternfile') { |v| patternfilename = v }
@@ -104,7 +106,7 @@ format = []
 
 pattern.each do |member|
   case member["type"]
-  when *["DUMMY8", "DUMMY16", "DUMMY32"]
+  when *dummy
   else
     header.push member["label"]
   end
@@ -128,7 +130,7 @@ while binary.size > 0 do
     data = binary.unpack(template)
     num = data.pack(f["pack"]).unpack(f["unpack"])
     case fmt
-    when *["DUMMY8", "DUMMY16", "DUMMY32"]
+    when *dummy
     else
       str.push sprintf(f["sprintf"], num[0])
     end
