@@ -1,5 +1,20 @@
 #!/usr/bin/ruby
 
+# 
+# wTrTool
+# https://github.com/steelpipe75/wTrTool
+# 
+# Copyright(c) 2013 steelpipe75
+# Released under the MIT license.
+# https://github.com/steelpipe75/wTrTool/blob/master/MIT-LICENSE.txt
+# 
+# 
+# Includes Kwalify
+# http://www.kuwata-lab.com/kwalify/
+# copyright(c) 2005-2010 kuwata-lab all rights reserved.
+# Released under the MIT License. 
+# 
+
 ###
 ### wTrTool.rb
 ###
