@@ -57,19 +57,45 @@ printf("patternname\t= \"%s\"\n",patternname)
 
 # schema
 
-begin
-  s_file = File.read("schema.yaml")
-rescue => ex
-  puts "Error: schemafile can not open"
-  printf("\t%s\n" ,ex.message)
-  exit 1
-end
-
-schema_def = ""
-
-s_file.each_line do |line|
-  schema_def << line.gsub(/([^\t]{8})|([^\t]*)\t/n) { [$+].pack("A8") }
-end
+schema_def = <<EOS
+type: seq
+sequence:
+  - type: map
+    mapping:
+      "name":
+        required: true
+        unique: yes
+        type: str
+      "format":
+        required: true
+        type: seq
+        sequence:
+          - type: map
+            mapping:
+              "label":
+                type: str
+              "type":
+                required: true
+                enum:
+                  - UINT8
+                  - SINT8
+                  - BIT8
+                  - OCT8
+                  - HEX8
+                  - DUMMY8
+                  - UINT16
+                  - SINT16
+                  - BIT16
+                  - OCT16
+                  - HEX16
+                  - DUMMY16
+                  - UINT32
+                  - SINT32
+                  - BIT32
+                  - OCT32
+                  - HEX32
+                  - DUMMY32
+EOS
 
 schema = YAML.load(schema_def)
 validator = Kwalify::Validator.new(schema)
