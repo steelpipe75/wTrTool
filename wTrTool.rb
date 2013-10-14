@@ -56,7 +56,13 @@ printf("patternname\t= \"%s\"\n",patternname)
 
 # schema
 
-s_file = File.read("schema.yaml")
+begin
+  s_file = File.read("schema.yaml")
+rescue => ex
+  puts "Error: schemafile can not open"
+  printf("\t%s\n" ,ex.message)
+  exit 1
+end
 
 schema_def = ""
 
@@ -69,7 +75,13 @@ validator = Kwalify::Validator.new(schema)
 
 # format
 
-f_file = File.read(patternfilename)
+begin
+  f_file = File.read(patternfilename)
+rescue => ex
+  puts "Error: patternfile can not open"
+  printf("\t%s\n" ,ex.message)
+  exit 1
+end
 
 yaml = ""
 
@@ -115,8 +127,21 @@ end
 
 # convert
 
-binary = File.binread(inputfilename)
-o_file = File.open(outputfilename,"w")
+begin
+  binary = File.binread(inputfilename)
+rescue => ex
+  puts "Error: inputfile can not open"
+  printf("\t%s\n" ,ex.message)
+  exit 1
+end
+
+begin
+  o_file = File.open(outputfilename,"w")
+rescue => ex
+  puts "Error: outputfile can not open"
+  printf("\t%s\n" ,ex.message)
+  exit 1
+end
 
 out_str = header.join("\t") + "\n"
 o_file.write out_str
