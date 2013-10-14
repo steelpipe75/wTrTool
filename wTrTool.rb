@@ -9,7 +9,7 @@ require 'yaml'
 require 'kwalify'
 
 opt = OptionParser.new
-Version = "1.0"
+Version = "v1.0"
 
 inputfilename = "MemTrace.dat"
 outputfilename = "MemTool.txt"
