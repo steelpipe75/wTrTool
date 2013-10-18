@@ -1,1 +1,1 @@
-ocra --output wTrTool.exe --windows wTrTool.rb
+ocra --output wTrTool.exe wTrTool.rb
