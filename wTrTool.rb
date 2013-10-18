@@ -23,7 +23,8 @@ require 'optparse'
 require 'yaml'
 require 'kwalify'
 
-opt = OptionParser.new
+# parameter
+
 Version = "v1.0"
 
 inputfilename = "MemTrace.dat"
@@ -55,22 +56,6 @@ format_str = {
 }
 
 dummy = ["DUMMY8", "DUMMY16", "DUMMY32"]
-
-opt.on('-i inputfile') { |v| inputfilename = v }
-opt.on('-o outputfile') { |v| outputfilename = v }
-opt.on('-f patternfile') { |v| patternfilename = v }
-opt.on('-p patternname') { |v| patternname = v }
-opt.on('-l') { endian = "little" }
-opt.on('-b') { endian = "big" }
-
-argv = opt.parse(ARGV)
-
-printf("inputfile\t= \"%s\"\n",inputfilename)
-printf("outputfile\t= \"%s\"\n",outputfilename)
-printf("patternfile\t= \"%s\"\n",patternfilename)
-printf("patternname\t= \"%s\"\n",patternname)
-
-# schema
 
 schema_def = <<EOS
 type: seq
@@ -111,6 +96,25 @@ sequence:
                   - HEX32
                   - DUMMY32
 EOS
+
+# option parser
+
+opt = OptionParser.new
+opt.on('-i inputfile') { |v| inputfilename = v }
+opt.on('-o outputfile') { |v| outputfilename = v }
+opt.on('-f patternfile') { |v| patternfilename = v }
+opt.on('-p patternname') { |v| patternname = v }
+opt.on('-l') { endian = "little" }
+opt.on('-b') { endian = "big" }
+
+argv = opt.parse(ARGV)
+
+printf("inputfile\t= \"%s\"\n",inputfilename)
+printf("outputfile\t= \"%s\"\n",outputfilename)
+printf("patternfile\t= \"%s\"\n",patternfilename)
+printf("patternname\t= \"%s\"\n",patternname)
+
+# schema
 
 schema = YAML.load(schema_def)
 validator = Kwalify::Validator.new(schema)
