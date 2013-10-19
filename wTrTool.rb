@@ -25,11 +25,11 @@ require 'kwalify'
 
 # parameter
 
-Version = "v1.0"
+Version = "v1.1"
 
 inputfilename = "MemTrace.dat"
 outputfilename = "MemTool.txt"
-patternfilename = "wTrToolFormat.yaml"
+formatfilename = "wTrToolFormat.yaml"
 patternname = "sample"
 pattern = nil
 endian = "little"
@@ -62,7 +62,7 @@ type: seq
 sequence:
   - type: map
     mapping:
-      "name":
+      "patternname":
         required: true
         unique: yes
         type: str
@@ -100,18 +100,18 @@ EOS
 # option parser
 
 opt = OptionParser.new
-opt.on('-i inputfile') { |v| inputfilename = v }
-opt.on('-o outputfile') { |v| outputfilename = v }
-opt.on('-f patternfile') { |v| patternfilename = v }
-opt.on('-p patternname') { |v| patternname = v }
-opt.on('-l') { endian = "little" }
-opt.on('-b') { endian = "big" }
+opt.on('-i inputfile',  '--input inputfile',    ) { |v| inputfilename = v }
+opt.on('-o outputfile', '--output outputfile',  ) { |v| outputfilename = v }
+opt.on('-f formatfile', '--format formatfile',  ) { |v| formatfilename = v }
+opt.on('-p patternname','--pattern patternname',) { |v| patternname = v }
+opt.on('-l',            '--littleend',          'little endian') { endian = "little" }
+opt.on('-b',            '--bigend',             'big endian') { endian = "big" }
 
 argv = opt.parse(ARGV)
 
 printf("inputfile\t= \"%s\"\n",inputfilename)
 printf("outputfile\t= \"%s\"\n",outputfilename)
-printf("patternfile\t= \"%s\"\n",patternfilename)
+printf("formatfile\t= \"%s\"\n",formatfilename)
 printf("patternname\t= \"%s\"\n",patternname)
 
 # schema
@@ -122,9 +122,9 @@ validator = Kwalify::Validator.new(schema)
 # format
 
 begin
-  f_file = File.read(patternfilename)
+  f_file = File.read(formatfilename)
 rescue => ex
-  puts "Error: patternfile can not open"
+  puts "Error: formatfile can not open"
   printf("\t%s\n" ,ex.message)
   exit 1
 end
@@ -140,15 +140,15 @@ yaml_data = YAML.load(yaml)
 errors = validator.validate(yaml_data)
 if !errors || errors.empty? then
 else
-  puts "Error: invalid pattern file"
+  puts "Error: invalid format file"
   errors.each do |error|
-    printf( "\t\"%s\" [%s}] %s\n",patternfilename,error.path,error.message)
+    printf( "\t\"%s\" [%s}] %s\n",formatfilename,error.path,error.message)
   end
   exit(1)
 end
 
 yaml_data.each do |ptn|
-  if ptn["name"] == patternname then
+  if ptn["patternname"] == patternname then
     pattern = ptn["format"]
   end
 end
