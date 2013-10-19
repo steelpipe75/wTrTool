@@ -1,4 +1,4 @@
-#!/usr/bin/ruby -Ks
+#!/usr/bin/ruby -Ku
 
 # 
 # wTrTool
@@ -100,12 +100,12 @@ EOS
 # option parser
 
 opt = OptionParser.new
-opt.on('-i inputfile',  '--input inputfile',    '“ü—Íƒtƒ@ƒCƒ‹w’è') { |v| inputfilename = v }
-opt.on('-o outputfile', '--output outputfile',  'o—Íƒtƒ@ƒCƒ‹w’è') { |v| outputfilename = v }
-opt.on('-f formatfile', '--format formatfile',  '®Œ`ƒpƒ^[ƒ“‹Lqƒtƒ@ƒCƒ‹w’è') { |v| formatfilename = v }
-opt.on('-p patternname','--pattern patternname','®Œ`ƒpƒ^[ƒ“–¼w’è') { |v| patternname = v }
-opt.on('-l',            '--littleend',          '“ü—Íƒtƒ@ƒCƒ‹‚Ì‘½ƒoƒCƒgƒf[ƒ^‚ğlittle endian‚Æ‚µ‚Äˆµ‚¤') { endian = "little" }
-opt.on('-b',            '--bigend',             '“ü—Íƒtƒ@ƒCƒ‹‚Ì‘½ƒoƒCƒgƒf[ƒ^‚ğbig endian‚Æ‚µ‚Äˆµ‚¤') { endian = "big" }
+opt.on('-i inputfile',  '--input inputfile',    'å…¥åŠ›ãƒ•ã‚¡ã‚¤ãƒ«æŒ‡å®š') { |v| inputfilename = v }
+opt.on('-o outputfile', '--output outputfile',  'å‡ºåŠ›ãƒ•ã‚¡ã‚¤ãƒ«æŒ‡å®š') { |v| outputfilename = v }
+opt.on('-f formatfile', '--format formatfile',  'æ•´å½¢ãƒ‘ã‚¿ãƒ¼ãƒ³è¨˜è¿°ãƒ•ã‚¡ã‚¤ãƒ«æŒ‡å®š') { |v| formatfilename = v }
+opt.on('-p patternname','--pattern patternname','æ•´å½¢ãƒ‘ã‚¿ãƒ¼ãƒ³åæŒ‡å®š') { |v| patternname = v }
+opt.on('-l',            '--littleend',          'å…¥åŠ›ãƒ•ã‚¡ã‚¤ãƒ«ã®å¤šãƒã‚¤ãƒˆãƒ‡ãƒ¼ã‚¿ã‚’little endianã¨ã—ã¦æ‰±ã†') { endian = "little" }
+opt.on('-b',            '--bigend',             'å…¥åŠ›ãƒ•ã‚¡ã‚¤ãƒ«ã®å¤šãƒã‚¤ãƒˆãƒ‡ãƒ¼ã‚¿ã‚’big endianã¨ã—ã¦æ‰±ã†') { endian = "big" }
 
 argv = opt.parse(ARGV)
 
