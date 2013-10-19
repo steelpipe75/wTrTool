@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/ruby -Ks
 
 # 
 # wTrTool
@@ -100,12 +100,12 @@ EOS
 # option parser
 
 opt = OptionParser.new
-opt.on('-i inputfile',  '--input inputfile',    ) { |v| inputfilename = v }
-opt.on('-o outputfile', '--output outputfile',  ) { |v| outputfilename = v }
-opt.on('-f formatfile', '--format formatfile',  ) { |v| formatfilename = v }
-opt.on('-p patternname','--pattern patternname',) { |v| patternname = v }
-opt.on('-l',            '--littleend',          'little endian') { endian = "little" }
-opt.on('-b',            '--bigend',             'big endian') { endian = "big" }
+opt.on('-i inputfile',  '--input inputfile',    '入力ファイル指定') { |v| inputfilename = v }
+opt.on('-o outputfile', '--output outputfile',  '出力ファイル指定') { |v| outputfilename = v }
+opt.on('-f formatfile', '--format formatfile',  '整形パターン記述ファイル指定') { |v| formatfilename = v }
+opt.on('-p patternname','--pattern patternname','整形パターン名指定') { |v| patternname = v }
+opt.on('-l',            '--littleend',          '入力ファイルの多バイトデータをlittle endianとして扱う') { endian = "little" }
+opt.on('-b',            '--bigend',             '入力ファイルの多バイトデータをbig endianとして扱う') { endian = "big" }
 
 argv = opt.parse(ARGV)
 
