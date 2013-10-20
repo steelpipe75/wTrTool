@@ -106,8 +106,8 @@ def option_parse
   opt.on('-o outputfile', '--output outputfile',  '出力ファイル指定') { |v| $outputfilename = v }
   opt.on('-f formatfile', '--format formatfile',  '整形パターン記述ファイル指定') { |v| $formatfilename = v }
   opt.on('-p patternname','--pattern patternname','整形パターン名指定') { |v| $patternname = v }
-  opt.on('-l',            '--littleend',          '入力ファイルの多バイトデータをlittle endianとして扱う') { $endian = "little" }
-  opt.on('-b',            '--bigend',             '入力ファイルの多バイトデータをbig endianとして扱う') { $endian = "big" }
+  opt.on('-l',            '--littleend',          '多バイトデータをlittle endianとして扱う') { $endian = "little" }
+  opt.on('-b',            '--bigend',             '多バイトデータをbig endianとして扱う') { $endian = "big" }
 
   argv = opt.parse(ARGV)
 
