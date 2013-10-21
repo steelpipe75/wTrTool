@@ -22,6 +22,7 @@ require 'pp'
 require 'optparse'
 require 'yaml'
 require 'kwalify'
+require 'tk'
 
 # parameter
 
@@ -100,7 +101,7 @@ EOS
 $yaml_data = nil
 
 # option parser
-def option_parse
+def option_parse(argv)
   opt = OptionParser.new
   opt.on('-i inputfile',  '--input inputfile',    '入力ファイル指定') { |v| $inputfilename = v }
   opt.on('-o outputfile', '--output outputfile',  '出力ファイル指定') { |v| $outputfilename = v }
@@ -109,7 +110,7 @@ def option_parse
   opt.on('-l',            '--littleend',          '多バイトデータをlittle endianとして扱う') { $endian = "little" }
   opt.on('-b',            '--bigend',             '多バイトデータをbig endianとして扱う') { $endian = "big" }
 
-  argv = opt.parse(ARGV)
+  opt.parse(argv)
 
   printf("inputfile\t= \"%s\"\n",$inputfilename)
   printf("outputfile\t= \"%s\"\n",$outputfilename)
@@ -149,8 +150,8 @@ def format_schema_validation
   end
 end
 
-def data_convert
-  option_parse
+def data_convert(argv)
+  option_parse(argv)
   format_schema_validation
 
   # pattern
@@ -226,6 +227,218 @@ def data_convert
   o_file.close
 end
 
+def getopenformatfile
+  return Tk.getOpenFile('title' => 'ファイルを開く',
+                        'defaultextension' => 'sgf', 
+                        'filetypes' => "{YAMLファイル {.yaml}} {全てのファイル {.*}}")
+end
+
+def getopeninputfile
+  return Tk.getOpenFile('title' => 'ファイルを開く',
+                        'defaultextension' => 'sgf', 
+                        'filetypes' => "{バイナリデータファイル {.dat}} {全てのファイル {.*}}")
+end
+
+def getsavefile
+  return Tk.getSaveFile('title' => 'ファイルを開く',
+			'defaultextension' => 'sgf', 
+			'filetypes' => "{テキストファイル {.txt}} {全てのファイル {.*}}")
+end
+
+def start_gui
+  endian_var = TkVariable.new("little")
+
+  formatfile_var = TkVariable.new('')
+  inputfile_var = TkVariable.new('')
+  outputfile_var = TkVariable.new('')
+  patternname_var = TkVariable.new('')
+
+  window = TkRoot.new {
+    title 'wTrTool'
+    resizable [0,0]
+  }
+
+  fomrat_row = 0
+
+  formatlabel = TkLabel.new {
+    text 'formatfile'
+    width 10
+    anchor 'w'
+    grid 'row'=>fomrat_row, 'column'=>0, 'sticky' => 'news'
+  }
+
+  formatfile = TkEntry.new {
+    width 40
+    grid 'row'=>fomrat_row, 'column'=>1, 'sticky' => 'news'
+  }
+
+  formatfile.textvariable = formatfile_var
+
+  formatbutton = TkButton.new {
+    text 'select'
+    width 10
+    grid 'row'=>fomrat_row, 'column'=>2, 'sticky' => 'news'
+  }
+
+  formatbutton.command( proc{ formatfile_var.value = getopenformatfile } )
+
+  input_row = 1
+
+  inputlabel = TkLabel.new {
+    text 'inputfile'
+    width 10
+    anchor 'w'
+    grid 'row'=>input_row, 'column'=>0, 'sticky' => 'news'
+  }
+
+  inputfile = TkEntry.new {
+    width 40
+    grid 'row'=>input_row, 'column'=>1, 'sticky' => 'news'
+  }
+
+  inputfile.textvariable = inputfile_var
+
+  inputbutton = TkButton.new {
+    text 'select'
+    width 10
+    grid 'row'=>input_row, 'column'=>2, 'sticky' => 'news'
+  }
+
+  inputbutton.command( proc{ inputfile.value = getopeninputfile } )
+
+  output_row = 2
+
+  outputlabel = TkLabel.new {
+    text 'outputfile'
+    width 10
+    anchor 'w'
+    grid 'row'=>output_row, 'column'=>0, 'sticky' => 'news'
+  }
+
+  outputfile = TkEntry.new {
+    width 40
+    grid 'row'=>output_row, 'column'=>1, 'sticky' => 'news'
+  }
+
+  outputfile.textvariable = outputfile_var
+
+  outputbutton = TkButton.new {
+    text 'select'
+    width 10
+    grid 'row'=>output_row, 'column'=>2, 'sticky' => 'news'
+  }
+
+  outputbutton.command( proc{ outputfile.value = getsavefile } )
+
+  pattern_row = 3
+
+  patternlabel = TkLabel.new {
+    text 'pattern'
+    width 10
+    anchor 'w'
+    grid 'row'=>pattern_row, 'column'=>0, 'sticky' => 'news'
+  }
+
+  patternname = TkEntry.new {
+    width 40
+    grid 'row'=>pattern_row, 'column'=>1, 'sticky' => 'news'
+  }
+
+  patternname.textvariable = patternname_var
+
+=begin
+  patternlabel = TkLabel.new {
+    text 'pattern'
+    width 10
+    anchor 'nw'
+    grid 'row'=>pattern_row, 'column'=>0, 'sticky' => 'news'
+  }
+
+  listframe = TkFrame.new
+  listscrollbar = TkScrollbar.new(listframe)
+  list = TkListbox.new(listframe) {
+    height 4
+    width 40
+    selectmode 'browse'
+    yscrollbar listscrollbar
+  }
+
+  list.pack('side'=>'left')
+  listscrollbar.pack('side'=>'left', 'fill'=>'y')
+
+  listframe.grid('row'=>pattern_row, 'column'=>1, "columnspan" => 2, 'sticky' => 'news')
+=end
+
+  endian_row = 4
+
+  endianlabel = TkLabel.new {
+    text 'endian'
+    width 10
+    anchor 'nw'
+    grid 'row'=>endian_row, 'column'=>0, 'sticky' => 'news'
+  }
+
+  endianframe = TkFrame.new
+
+  littleradiobutton = TkRadiobutton.new(endianframe) {
+    text 'little'
+    variable endian_var
+    value 'little'
+    width 15
+    anchor 'w'
+    select
+    pack 'side'=>'left'
+  }
+
+  bigradiobutton = TkRadiobutton.new(endianframe) {
+    text 'big'
+    variable endian_var
+    value 'big'
+    width 15
+    anchor 'w'
+    deselect
+    pack 'side'=>'left'
+  }
+
+  endianframe.grid('row'=>endian_row, 'column'=>1, "columnspan" => 2, 'sticky' => 'news')
+
+  exec_row = 6
+
+  execbutton = TkButton.new {
+    text 'exec'
+    grid 'row'=>exec_row, 'column'=>0, 'columnspan'=>3, 'sticky' => 'news'
+  }
+
+  execbutton.command(
+    proc {
+      gui_arg = []
+      if formatfile_var.to_s.length > 0 then
+        gui_arg.push '-f ' + formatfile_var.to_s
+      end
+      if inputfile_var.to_s.length > 0 then
+        gui_arg.push '-i ' + inputfile_var.to_s
+      end
+      if outputfile_var.to_s.length > 0 then
+        gui_arg.push '-o ' + outputfile_var.to_s
+      end
+      if patternname_var.to_s.length > 0 then
+        gui_arg.push '-p ' + patternname_var.to_s
+      end
+      if endian_var.to_s == 'little' then
+        gui_arg.push '-l'
+      else
+        gui_arg.push '-b'
+      end
+      data_convert(gui_arg)
+    }
+  )
+
+  Tk.mainloop
+end
 
 
-data_convert
+if ARGV.empty? then
+  start_gui
+else
+  data_convert(ARGV)
+end
