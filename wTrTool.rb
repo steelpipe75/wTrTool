@@ -128,7 +128,7 @@ def format_schema_validation
   rescue => ex
     puts "Error: formatfile can not open"
     printf("\t%s\n" ,ex.message)
-    exit 1
+    return 1
   end
 
   yaml = ""
@@ -146,14 +146,16 @@ def format_schema_validation
     errors.each do |error|
       printf( "\t\"%s\" [%s}] %s\n",$formatfilename,error.path,error.message)
     end
-    exit(1)
+    return 1
   end
 end
 
 def data_convert(argv)
   option_parse(argv)
-  format_schema_validation
-
+  ret = format_schema_validation
+  if ret == 1 then
+    return 1
+  end
   # pattern
 
   $yaml_data.each do |ptn|
@@ -165,7 +167,7 @@ def data_convert(argv)
   if $pattern == nil then
     puts "Error: pattern not found"
     printf("\tpatternfile = \"%s\", patternname = \"%s\"\n",patternfilename,$patternname)
-    exit(1)
+    return 1
   end
 
   header = []
@@ -187,7 +189,7 @@ def data_convert(argv)
   rescue => ex
     puts "Error: inputfile can not open"
     printf("\t%s\n" ,ex.message)
-    exit 1
+    return 1
   end
 
   begin
@@ -195,7 +197,7 @@ def data_convert(argv)
   rescue => ex
     puts "Error: outputfile can not open"
     printf("\t%s\n" ,ex.message)
-    exit 1
+    return 1
   end
 
   out_str = header.join("\t") + "\n"
