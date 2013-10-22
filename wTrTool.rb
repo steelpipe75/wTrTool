@@ -99,6 +99,8 @@ sequence:
 EOS
 
 $yaml_data = nil
+$stdout_str = []
+$stderr_str = []
 
 # option parser
 def option_parse(argv)
@@ -112,10 +114,10 @@ def option_parse(argv)
 
   opt.parse(argv)
 
-  printf("inputfile\t= \"%s\"\n",$inputfilename)
-  printf("outputfile\t= \"%s\"\n",$outputfilename)
-  printf("formatfile\t= \"%s\"\n",$formatfilename)
-  printf("patternname\t= \"%s\"\n",$patternname)
+  $stdout_str.push sprintf("inputfile\t= \"%s\"\n",$inputfilename)
+  $stdout_str.push sprintf("outputfile\t= \"%s\"\n",$outputfilename)
+  $stdout_str.push sprintf("formatfile\t= \"%s\"\n",$formatfilename)
+  $stdout_str.push sprintf("patternname\t= \"%s\"\n",$patternname)
 end
 
 # schema validation
@@ -126,8 +128,8 @@ def format_schema_validation
   begin
     f_file = File.read($formatfilename)
   rescue => ex
-    puts "Error: formatfile can not open"
-    printf("\t%s\n" ,ex.message)
+    $stderr_str.push "Error: formatfile can not open\n"
+    $stderr_str.push sprintf("\t%s\n" ,ex.message)
     return 1
   end
 
@@ -142,15 +144,18 @@ def format_schema_validation
   errors = validator.validate($yaml_data)
   if !errors || errors.empty? then
   else
-    puts "Error: invalid format file"
+    $stderr_str.push "Error: invalid format file\n"
     errors.each do |error|
-      printf( "\t\"%s\" [%s}] %s\n",$formatfilename,error.path,error.message)
+      $stderr_str.push sprintf( "\t\"%s\" [%s}] %s\n",$formatfilename,error.path,error.message)
     end
     return 1
   end
 end
 
 def data_convert(argv)
+  $stdout_str = []
+  $stderr_str = []
+
   option_parse(argv)
   ret = format_schema_validation
   if ret == 1 then
@@ -165,8 +170,8 @@ def data_convert(argv)
   end
 
   if $pattern == nil then
-    puts "Error: pattern not found"
-    printf("\tpatternfile = \"%s\", patternname = \"%s\"\n",patternfilename,$patternname)
+    $stderr_str.push "Error: pattern not found\n"
+    $stderr_str.push sprintf("\tpatternfile = \"%s\", patternname = \"%s\"\n",patternfilename,$patternname)
     return 1
   end
 
@@ -187,16 +192,16 @@ def data_convert(argv)
   begin
     binary = File.binread($inputfilename)
   rescue => ex
-    puts "Error: inputfile can not open"
-    printf("\t%s\n" ,ex.message)
+    $stderr_str.push "Error: inputfile can not open\n"
+    $stderr_str.push sprintf("\t%s\n" ,ex.message)
     return 1
   end
 
   begin
     o_file = File.open($outputfilename,"w")
   rescue => ex
-    puts "Error: outputfile can not open"
-    printf("\t%s\n" ,ex.message)
+    $stderr_str.push "Error: outputfile can not open\n"
+    $stderr_str.push sprintf("\t%s\n" ,ex.message)
     return 1
   end
 
@@ -227,6 +232,7 @@ def data_convert(argv)
   end
 
   o_file.close
+  return 0
 end
 
 def getopenformatfile
@@ -243,8 +249,8 @@ end
 
 def getsavefile
   return Tk.getSaveFile('title' => 'ファイルを開く',
-			'defaultextension' => 'sgf', 
-			'filetypes' => "{テキストファイル {.txt}} {全てのファイル {.*}}")
+                        'defaultextension' => 'sgf', 
+                        'filetypes' => "{テキストファイル {.txt}} {全てのファイル {.*}}")
 end
 
 def start_gui
@@ -411,8 +417,13 @@ def start_gui
     grid 'row'=>exec_row, 'column'=>0, 'columnspan'=>3, 'sticky' => 'news'
   }
 
+  gui_text = TkText.new {
+    grid 'row'=>exec_row+1, 'column'=>0, 'columnspan'=>3, 'sticky' => 'news'
+  }
+
   execbutton.command(
     proc {
+      gui_text.delete('0.0', 'end')
       gui_arg = []
       if formatfile_var.to_s.length > 0 then
         gui_arg.push '-f ' + formatfile_var.to_s
@@ -432,6 +443,18 @@ def start_gui
         gui_arg.push '-b'
       end
       data_convert(gui_arg)
+      $stdout_str.each do |str|
+        gui_text.insert('end', str)
+      end
+      separator = sprintf("========================\n")
+      gui_text.insert('end', separator)
+      if $stderr_str.empty? then
+        gui_text.insert('end', 'Success')
+      else
+        $stderr_str.each do |str|
+         gui_text.insert('end', str)
+        end
+      end
     }
   )
 
@@ -442,5 +465,15 @@ end
 if ARGV.empty? then
   start_gui
 else
-  data_convert(ARGV)
+  ret = data_convert(ARGV)
+  $stdout_str.each do |str|
+    STDOUT.puts(str)
+  end
+  $stdout.flush
+  if ret != 0 then
+    $stderr_str.each do |str|
+      STDERR.puts(str)
+    end
+    exit ret
+  end
 end
