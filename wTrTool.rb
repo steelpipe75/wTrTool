@@ -426,16 +426,20 @@ def start_gui
       gui_text.delete('0.0', 'end')
       gui_arg = []
       if formatfile_var.to_s.length > 0 then
-        gui_arg.push '-f ' + formatfile_var.to_s
+        gui_arg.push '-f'
+        gui_arg.push formatfile_var.to_s
       end
       if inputfile_var.to_s.length > 0 then
-        gui_arg.push '-i ' + inputfile_var.to_s
+        gui_arg.push '-i'
+        gui_arg.push inputfile_var.to_s
       end
       if outputfile_var.to_s.length > 0 then
-        gui_arg.push '-o ' + outputfile_var.to_s
+        gui_arg.push '-o'
+        gui_arg.push outputfile_var.to_s
       end
       if patternname_var.to_s.length > 0 then
-        gui_arg.push '-p ' + patternname_var.to_s
+        gui_arg.push '-p'
+        gui_arg.push patternname_var.to_s
       end
       if endian_var.to_s == 'little' then
         gui_arg.push '-l'
