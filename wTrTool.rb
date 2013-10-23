@@ -265,8 +265,10 @@ def start_gui
   outputfile_var = TkVariable.new('')
   patternname_var = TkVariable.new('')
 
+  gui_title = sprintf("wTrTool %s", Version)
+
   window = TkRoot.new {
-    title 'wTrTool'
+    title gui_title
     resizable [0,0]
   }
 
