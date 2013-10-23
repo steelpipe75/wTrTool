@@ -141,14 +141,16 @@ def format_schema_validation
     yaml << line.gsub(/([^\t]{8})|([^\t]*)\t/) { [$+].pack("A8") }
   end
 
-  $yaml_data = YAML.load(yaml)
+  parser = Kwalify::Parser.new(yaml)
+  $yaml_data = parser.parse()
 
   errors = validator.validate($yaml_data)
   if !errors || errors.empty? then
   else
     $stderr_str.push "Error: invalid format file\n"
+    parser.set_errors_linenum(errors)
     errors.each do |error|
-      $stderr_str.push sprintf( "\t\"%s\" [%s] %s\n",$formatfilename,error.path,error.message)
+      $stderr_str.push sprintf( "\t%s (line %s) [%s] %s\n",$formatfilename,error.linenum,error.path,error.message)
     end
     return 1
   end

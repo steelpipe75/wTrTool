@@ -38,3 +38,44 @@
 			label:	HEX32
 		-	type:	DUMMY32
 			label:	DUMMY32
+
+-
+	patternname:	sample2
+	description:	サンプル2
+	format:
+		-	type:	UNIT8
+			label:	UINT8
+		-	type:	SINT8
+			label:	SINT8
+		-	type:	BIT8
+			label:	BIT8
+		-	type:	OCT8
+			label:	OCT8
+		-	type:	HEX8
+			label:	HEX8
+		-	type:	DUMMY8
+			label:	DUMMY8
+		-	type:	UINT16
+			label:	UINT16
+		-	type:	SINT16
+			label:	SINT16
+		-	type:	BIT16
+			label:	BIT16
+		-	type:	OCT16
+			label:	OCT16
+		-	type:	HEX16
+			label:	HEX16
+		-	type:	DUMMY16
+			label:	DUMMY16
+		-	type:	UINT32
+			label:	UINT32
+		-	type:	SINT32
+			label:	SINT32
+		-	type:	BIT32
+			label:	BIT32
+		-	type:	OCT32
+			label:	OCT32
+		-	type:	HEX32
+			label:	HEX32
+		-	type:	DUMMY32
+			label:	DUMMY32
