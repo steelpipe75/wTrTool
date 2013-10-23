@@ -136,7 +136,7 @@ def format_schema_validation
   yaml = ""
 
   f_file.each_line do |line|
-    yaml << line.gsub(/([^\t]{8})|([^\t]*)\t/n) { [$+].pack("A8") }
+    yaml << line.gsub(/([^\t]{8})|([^\t]*)\t/) { [$+].pack("A8") }
   end
 
   $yaml_data = YAML.load(yaml)
