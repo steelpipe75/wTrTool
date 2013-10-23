@@ -473,11 +473,14 @@ else
   $stdout_str.each do |str|
     STDOUT.puts(str)
   end
+  puts "========================"
   $stdout.flush
   if ret != 0 then
     $stderr_str.each do |str|
       STDERR.puts(str)
     end
     exit ret
+  else
+    puts "Success"
   end
 end
