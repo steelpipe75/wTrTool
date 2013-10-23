@@ -67,6 +67,8 @@ sequence:
         required: true
         unique: yes
         type: str
+      "description":
+        type: str
       "format":
         required: true
         type: seq

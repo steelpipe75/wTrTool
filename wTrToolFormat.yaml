@@ -1,5 +1,6 @@
 -
 	patternname:	sample
+	description:	サンプル
 	format:
 		-	type:	UINT8
 			label:	UINT8
