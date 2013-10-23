@@ -148,7 +148,7 @@ def format_schema_validation
   else
     $stderr_str.push "Error: invalid format file\n"
     errors.each do |error|
-      $stderr_str.push sprintf( "\t\"%s\" [%s}] %s\n",$formatfilename,error.path,error.message)
+      $stderr_str.push sprintf( "\t\"%s\" [%s] %s\n",$formatfilename,error.path,error.message)
     end
     return 1
   end
