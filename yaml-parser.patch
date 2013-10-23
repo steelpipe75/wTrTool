@@ -1,0 +1,4 @@
+37c37
+<       @lines = yaml_str.lines.to_a()
+---
+>       @lines = yaml_str.to_a()
