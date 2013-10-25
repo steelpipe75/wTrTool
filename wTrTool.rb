@@ -435,6 +435,7 @@ def start_gui
             l_str = sprintf("%s : %s", ptn["patternname"] ,ptn["description"])
             list.insert('end', l_str)
           end
+          list.selection_set (0)
         end
       end
       result_text.state 'disabled'
