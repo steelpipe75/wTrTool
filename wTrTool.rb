@@ -123,12 +123,12 @@ def option_parse(argv)
 end
 
 # schema validation
-def format_schema_validation
+def format_schema_validation(fmt_file)
   schema = YAML.load($SCHEMA_DEF)
   validator = Kwalify::Validator.new(schema)
 
   begin
-    f_file = File.read($formatfilename)
+    f_file = File.read(fmt_file)
   rescue => ex
     $stderr_str.push "Error: formatfile can not open\n"
     $stderr_str.push sprintf("\t%s\n" ,ex.message)
@@ -150,18 +150,15 @@ def format_schema_validation
     $stderr_str.push "Error: invalid format file\n"
     parser.set_errors_linenum(errors)
     errors.each do |error|
-      $stderr_str.push sprintf( "\t%s (line %s) [%s] %s\n",$formatfilename,error.linenum,error.path,error.message)
+      $stderr_str.push sprintf( "\t%s (line %s) [%s] %s\n",fmt_file,error.linenum,error.path,error.message)
     end
     return 1
   end
 end
 
 def data_convert(argv)
-  $stdout_str = []
-  $stderr_str = []
-
   option_parse(argv)
-  ret = format_schema_validation
+  ret = format_schema_validation($formatfilename)
   if ret == 1 then
     return 1
   end
@@ -175,7 +172,7 @@ def data_convert(argv)
 
   if $pattern == nil then
     $stderr_str.push "Error: pattern not found\n"
-    $stderr_str.push sprintf("\tpatternfile = \"%s\", patternname = \"%s\"\n",patternfilename,$patternname)
+    $stderr_str.push sprintf("\tformatfile = \"%s\", patternname = \"%s\"\n",$formatfilename,$patternname)
     return 1
   end
 
@@ -294,8 +291,6 @@ def start_gui
     grid 'row'=>fomrat_row, 'column'=>2, 'sticky' => 'news'
   }
 
-  formatbutton.command( proc{ formatfile_var.value = getopenformatfile } )
-
   input_row = 1
 
   inputlabel = TkLabel.new {
@@ -349,21 +344,6 @@ def start_gui
   patternlabel = TkLabel.new {
     text 'pattern'
     width 10
-    anchor 'w'
-    grid 'row'=>pattern_row, 'column'=>0, 'sticky' => 'news'
-  }
-
-  patternname = TkEntry.new {
-    width 40
-    grid 'row'=>pattern_row, 'column'=>1, 'sticky' => 'news'
-  }
-
-  patternname.textvariable = patternname_var
-
-=begin
-  patternlabel = TkLabel.new {
-    text 'pattern'
-    width 10
     anchor 'nw'
     grid 'row'=>pattern_row, 'column'=>0, 'sticky' => 'news'
   }
@@ -372,7 +352,7 @@ def start_gui
   listscrollbar = TkScrollbar.new(listframe)
   list = TkListbox.new(listframe) {
     height 4
-    width 40
+    width 70
     selectmode 'browse'
     yscrollbar listscrollbar
   }
@@ -381,7 +361,6 @@ def start_gui
   listscrollbar.pack('side'=>'left', 'fill'=>'y')
 
   listframe.grid('row'=>pattern_row, 'column'=>1, "columnspan" => 2, 'sticky' => 'news')
-=end
 
   endian_row = 4
 
@@ -427,8 +406,31 @@ def start_gui
     grid 'row'=>exec_row+1, 'column'=>0, 'columnspan'=>3, 'sticky' => 'news'
   }
 
+  formatbutton.command(
+    proc{
+      formatfile_var.value = getopenformatfile
+      fmt_file = formatfile_var.value
+      $stdout_str = []
+      $stderr_str = []
+      gui_text.delete('0.0', 'end')
+      ret = format_schema_validation(fmt_file)
+      if ret == 1 then
+        $stderr_str.each do |str|
+         gui_text.insert('end', str)
+        end
+      else
+        $yaml_data.each do |ptn|
+          l_str = sprintf("%s : %s", ptn["patternname"] ,ptn["description"])
+          list.insert('end', l_str)
+        end
+      end
+    }
+  )
+
   execbutton.command(
     proc {
+      $stdout_str = []
+      $stderr_str = []
       gui_text.delete('0.0', 'end')
       gui_arg = []
       if formatfile_var.to_s.length > 0 then
@@ -443,9 +445,11 @@ def start_gui
         gui_arg.push '-o'
         gui_arg.push outputfile_var.to_s
       end
-      if patternname_var.to_s.length > 0 then
+      if list.curselection.size != 0 then
+        idx = list.curselection[0]
+        ptn = $yaml_data[idx]
         gui_arg.push '-p'
-        gui_arg.push patternname_var.to_s
+        gui_arg.push ptn["patternname"]
       end
       if endian_var.to_s == 'little' then
         gui_arg.push '-l'
@@ -475,6 +479,8 @@ end
 if ARGV.empty? then
   start_gui
 else
+  $stdout_str = []
+  $stderr_str = []
   ret = data_convert(ARGV)
   $stdout_str.each do |str|
     STDOUT.puts(str)
