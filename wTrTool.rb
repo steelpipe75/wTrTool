@@ -402,8 +402,15 @@ def start_gui
     grid 'row'=>exec_row, 'column'=>0, 'columnspan'=>3, 'sticky' => 'news'
   }
 
-  gui_text = TkText.new {
-    grid 'row'=>exec_row+1, 'column'=>0, 'columnspan'=>3, 'sticky' => 'news'
+  resultlabel = TkLabel.new {
+    text 'result'
+    width 10
+    anchor 'w'
+    grid 'row'=>exec_row+1, 'column'=>0, 'sticky' => 'news'
+  }
+
+  result_text = TkText.new {
+    grid 'row'=>exec_row+2, 'column'=>0, 'columnspan'=>3, 'sticky' => 'news'
   }
 
   formatbutton.command(
@@ -412,16 +419,19 @@ def start_gui
       fmt_file = formatfile_var.value
       $stdout_str = []
       $stderr_str = []
-      gui_text.delete('0.0', 'end')
-      ret = format_schema_validation(fmt_file)
-      if ret == 1 then
-        $stderr_str.each do |str|
-         gui_text.insert('end', str)
-        end
-      else
-        $yaml_data.each do |ptn|
-          l_str = sprintf("%s : %s", ptn["patternname"] ,ptn["description"])
-          list.insert('end', l_str)
+      result_text.delete('0.0', 'end')
+      list.clear
+      if fmt_file.length != 0 then
+        ret = format_schema_validation(fmt_file)
+        if ret == 1 then
+          $stderr_str.each do |str|
+           result_text.insert('end', str)
+          end
+        else
+          $yaml_data.each do |ptn|
+            l_str = sprintf("%s : %s", ptn["patternname"] ,ptn["description"])
+            list.insert('end', l_str)
+          end
         end
       end
     }
@@ -431,7 +441,7 @@ def start_gui
     proc {
       $stdout_str = []
       $stderr_str = []
-      gui_text.delete('0.0', 'end')
+      result_text.delete('0.0', 'end')
       gui_arg = []
       if formatfile_var.to_s.length > 0 then
         gui_arg.push '-f'
@@ -458,15 +468,15 @@ def start_gui
       end
       data_convert(gui_arg)
       $stdout_str.each do |str|
-        gui_text.insert('end', str)
+        result_text.insert('end', str)
       end
       separator = sprintf("========================\n")
-      gui_text.insert('end', separator)
+      result_text.insert('end', separator)
       if $stderr_str.empty? then
-        gui_text.insert('end', 'Success')
+        result_text.insert('end', 'Success')
       else
         $stderr_str.each do |str|
-         gui_text.insert('end', str)
+         result_text.insert('end', str)
         end
       end
     }
