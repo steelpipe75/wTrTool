@@ -410,6 +410,8 @@ def start_gui
   }
 
   result_text = TkText.new {
+    state 'disabled'
+    height 10
     grid 'row'=>exec_row+2, 'column'=>0, 'columnspan'=>3, 'sticky' => 'news'
   }
 
@@ -419,6 +421,7 @@ def start_gui
       fmt_file = formatfile_var.value
       $stdout_str = []
       $stderr_str = []
+      result_text.state 'normal'
       result_text.delete('0.0', 'end')
       list.clear
       if fmt_file.length != 0 then
@@ -434,6 +437,7 @@ def start_gui
           end
         end
       end
+      result_text.state 'disabled'
     }
   )
 
@@ -441,6 +445,7 @@ def start_gui
     proc {
       $stdout_str = []
       $stderr_str = []
+      result_text.state 'normal'
       result_text.delete('0.0', 'end')
       gui_arg = []
       if formatfile_var.to_s.length > 0 then
@@ -479,6 +484,7 @@ def start_gui
          result_text.insert('end', str)
         end
       end
+      result_text.state 'disabled'
     }
   )
 
