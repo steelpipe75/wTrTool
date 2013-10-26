@@ -1,4 +1,4 @@
-wTrTool
+# wTrTool
 
 バイナリデータを変換して出力
 
