@@ -140,7 +140,11 @@ def format_schema_validation(fmt_file)
   yaml = ""
 
   f_file.each_line do |line|
-    yaml << line.gsub(/([^\t]{8})|([^\t]*)\t/) { [$+].pack("A8") }
+    while /\t+/u =~ line
+      n = $&.size * 8 - $`.size % 8
+      line.sub!(/\t+/u, " " * n)
+    end
+    yaml << line
   end
 
   parser = Kwalify::Parser.new(yaml)
