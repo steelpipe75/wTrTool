@@ -100,6 +100,9 @@ sequence:
                   - OCT32
                   - HEX32
                   - DUMMY32
+              "array":
+                type: int
+                range: { min: 1 }
 EOS
 
 $yaml_data = nil
