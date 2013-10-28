@@ -192,9 +192,25 @@ def data_convert(argv)
     case member["type"]
     when *$DUMMY
     else
-      header.push member["label"]
+      if member["array"] == nil then
+        header.push member["label"]
+      else
+        i = 0
+        while i < member["array"] do
+          header.push sprintf("%s[%d]", member["label"], i);
+          i += 1
+        end
+      end
     end
-    format.push member["type"]
+    if member["array"] == nil then
+      array = 1
+    else
+      array = member["array"]
+    end
+    h = Hash.new([])
+    h["type"] = member["type"]
+    h["array"] = array
+    format.push h
   end
 
   # convert
@@ -222,23 +238,28 @@ def data_convert(argv)
     str = []
     
     format.each do |fmt|
-      f = $FORMAT_STR[fmt]
-      length = f["length"]
-      if binary.size < length then
-        binary = [] # while を抜けるため
-        break;
+      f = $FORMAT_STR[fmt["type"]]
+      i = 0
+      j = fmt["array"]
+      while j > i do
+        length = f["length"]
+        if binary.size < length then
+          binary = [] # while を抜けるため
+          break;
+        end
+        template = f[$endian]
+        data = binary.unpack(template)
+        num = data.pack(f["pack"]).unpack(f["unpack"])
+        case fmt
+        when *$DUMMY
+        else
+          str.push sprintf(f["sprintf"], num[0])
+        end
+        cut = data.pack(template)
+        binary2 = binary[cut.size..binary.size]
+        binary = binary2
+        i += 1
       end
-      template = f[$endian]
-      data = binary.unpack(template)
-      num = data.pack(f["pack"]).unpack(f["unpack"])
-      case fmt
-      when *$DUMMY
-      else
-        str.push sprintf(f["sprintf"], num[0])
-      end
-      cut = data.pack(template)
-      binary2 = binary[cut.size..binary.size]
-      binary = binary2
     end
     
     out_str = str.join("\t") + "\n"

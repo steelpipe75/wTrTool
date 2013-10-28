@@ -4,7 +4,7 @@
 	format:
 		- { type: UINT8,  label: a }
 		- { type: SINT8,  label: b }
-		- { type: UINT16, label: c }
+		- { type: UINT16, label: c, array: 2 }
 -
 	patternname:	type_sample
 	description:	typeで選べる選択肢のリストアップ
