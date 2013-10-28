@@ -2,6 +2,13 @@
 	patternname:	sample
 	description:	サンプル
 	format:
+		- { type: UINT8,  label: a }
+		- { type: SINT8,  label: b }
+		- { type: UINT16, label: c }
+-
+	patternname:	type_sample
+	description:	typeで選べる選択肢のリストアップ
+	format:
 		- { type: UINT8,  label: UINT8   }
 		- { type: SINT8,  label: SINT8   }
 		- { type: BIT8,   label: BIT8    }
@@ -20,3 +27,9 @@
 		- { type: OCT32,  label: OCT32   }
 		- { type: HEX32,  label: HEX32   }
 		- { type: DUMMY32,label: DUMMY32 }
+
+-
+	patternname:	array_sample
+	description:	配列のサンプル
+	format:
+		- { type: UINT8,  label: UINT8,  array: 4 }
