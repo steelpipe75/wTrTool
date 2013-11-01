@@ -219,3 +219,5 @@ pip-log.txt
 *.exe
 wTrTool/
 wTrTool.zip
+*.obj
+*.tds
