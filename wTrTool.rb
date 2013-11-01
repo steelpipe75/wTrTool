@@ -28,7 +28,7 @@ require 'tk'
 
 # parameter
 
-Version = "v1.2"
+Version = "v1.3a"
 
 $inputfilename = "MemTrace.dat"
 $outputfilename = "MemTool.txt"
