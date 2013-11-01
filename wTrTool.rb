@@ -28,7 +28,7 @@ require 'tk'
 
 # parameter
 
-Version = "v1.3"
+Version = "v1.2"
 
 $inputfilename = "MemTrace.dat"
 $outputfilename = "MemTool.txt"
@@ -72,15 +72,17 @@ sequence:
       "description":
         type: str
       "format":
+        &format-rule
         required: true
         type: seq
         sequence:
           - type: map
+            name: format_member
             mapping:
               "label":
                 type: str
-              "type":
                 required: true
+              "type":
                 enum:
                   - UINT8
                   - SINT8
@@ -101,8 +103,12 @@ sequence:
                   - HEX32
                   - DUMMY32
               "array":
-                type: int
-                range: { min: 1 }
+                type: map
+                mapping:
+                  "num":
+                    type: int
+                    range: { min: 1 }
+                  "format": *format-rule
 EOS
 
 $yaml_data = nil
@@ -127,10 +133,30 @@ def option_parse(argv)
   $stdout_str.push sprintf("patternname\t= \"%s\"\n",$patternname)
 end
 
+class FormatValidator < Kwalify::Validator
+  @@schema = YAML.load($SCHEMA_DEF)
+
+  def initialize()
+    super(@@schema)
+  end
+
+  def validate_hook(value, rule, path, errors)
+    case rule.name
+    when "format_member"
+      if value["array"] != nil then
+        if value["type"] != nil then
+          msg = "array format error"
+          errors << Kwalify::ValidationError.new(msg, path)
+        end
+      end
+    end
+  end
+
+end
+
 # schema validation
 def format_schema_validation(fmt_file)
-  schema = YAML.load($SCHEMA_DEF)
-  validator = Kwalify::Validator.new(schema)
+  validator = FormatValidator.new
 
   begin
     f_file = File.read(fmt_file)
@@ -196,7 +222,7 @@ def data_convert(argv)
         header.push member["label"]
       else
         i = 0
-        while i < member["array"] do
+        while i < member["array"]["num"] do
           header.push sprintf("%s[%d]", member["label"], i);
           i += 1
         end
