@@ -250,7 +250,7 @@ def data_convert(argv)
         template = f[$endian]
         data = binary.unpack(template)
         num = data.pack(f["pack"]).unpack(f["unpack"])
-        case fmt
+        case fmt["type"]
         when *$DUMMY
         else
           str.push sprintf(f["sprintf"], num[0])
