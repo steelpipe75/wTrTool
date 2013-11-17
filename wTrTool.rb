@@ -244,12 +244,9 @@ def data_convert(argv)
     return 1
   end
 
-  header = []
   $format = []
 
   format_convert(pattern,"","")
-
-# pp $format
 
   # convert
 
@@ -269,6 +266,16 @@ def data_convert(argv)
     return 1
   end
 
+  header = []
+  $format.each do |fmt|
+    case fmt["type"]
+    when *$DUMMY
+    else
+      header.push fmt["label"]
+    end
+  end
+
+
   out_str = header.join("\t") + "\n"
   o_file.write out_str
 
@@ -277,27 +284,22 @@ def data_convert(argv)
     
     $format.each do |fmt|
       f = $FORMAT_STR[fmt["type"]]
-      i = 0
-      j = fmt["array"]
-      while j > i do
-        length = f["length"]
-        if binary.size < length then
-          binary = [] # while を抜けるため
-          break;
-        end
-        template = f[$endian]
-        data = binary.unpack(template)
-        num = data.pack(f["pack"]).unpack(f["unpack"])
-        case fmt
-        when *$DUMMY
-        else
-          str.push sprintf(f["sprintf"], num[0])
-        end
-        cut = data.pack(template)
-        binary2 = binary[cut.size..binary.size]
-        binary = binary2
-        i += 1
+      length = f["length"]
+      if binary.size < length then
+        binary = [] # while を抜けるため
+        break;
       end
+      template = f[$endian]
+      data = binary.unpack(template)
+      num = data.pack(f["pack"]).unpack(f["unpack"])
+      case fmt["type"]
+      when *$DUMMY
+      else
+        str.push sprintf(f["sprintf"], num[0])
+      end
+      cut = data.pack(template)
+      binary2 = binary[cut.size..binary.size]
+      binary = binary2
     end
     
     out_str = str.join("\t") + "\n"
