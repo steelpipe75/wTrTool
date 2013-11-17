@@ -28,14 +28,14 @@ require 'tk'
 
 # parameter
 
-Version = "v1.3.1"
+Version = "v1.3a"
 
 $inputfilename = "MemTrace.dat"
 $outputfilename = "MemTool.txt"
 $formatfilename = "wTrToolFormat.yaml"
 $patternname = "sample"
-$pattern = nil
 $endian = "little"
+$format = []
 
 $FORMAT_STR = { 
   "UINT8"   => {"little" => "C", "big" => "C", "pack" =>"C", "unpack" =>"C", "sprintf" => "%d",  "length" => 1},
@@ -72,15 +72,17 @@ sequence:
       "description":
         type: str
       "format":
+        &format-rule
         required: true
         type: seq
         sequence:
           - type: map
+            name: format_member
             mapping:
               "label":
                 type: str
-              "type":
                 required: true
+              "type":
                 enum:
                   - UINT8
                   - SINT8
@@ -101,8 +103,12 @@ sequence:
                   - HEX32
                   - DUMMY32
               "array":
-                type: int
-                range: { min: 1 }
+                type: map
+                mapping:
+                  "num":
+                    type: int
+                    range: { min: 1 }
+                  "format": *format-rule
 EOS
 
 $yaml_data = nil
@@ -127,10 +133,30 @@ def option_parse(argv)
   $stdout_str.push sprintf("patternname\t= \"%s\"\n",$patternname)
 end
 
+class FormatValidator < Kwalify::Validator
+  @@schema = YAML.load($SCHEMA_DEF)
+
+  def initialize()
+    super(@@schema)
+  end
+
+  def validate_hook(value, rule, path, errors)
+    case rule.name
+    when "format_member"
+      if value["array"] != nil then
+        if value["type"] != nil then
+          msg = "array format error"
+          errors << Kwalify::ValidationError.new(msg, path)
+        end
+      end
+    end
+  end
+
+end
+
 # schema validation
 def format_schema_validation(fmt_file)
-  schema = YAML.load($SCHEMA_DEF)
-  validator = Kwalify::Validator.new(schema)
+  validator = FormatValidator.new
 
   begin
     f_file = File.read(fmt_file)
@@ -165,6 +191,37 @@ def format_schema_validation(fmt_file)
   end
 end
 
+def format_convert(pattern,prefix,suffix)
+  pattern.each do |member|
+    if member["array"] == nil then
+      h = Hash.new([])
+      h["type"] = member["type"]
+      if suffix == "" then
+        h["label"] = prefix + member["label"]
+      else
+        if member["label"] == "" then
+          h["label"] = prefix + suffix
+        else
+          h["label"] = prefix + suffix + "." + member["label"]
+        end
+      end
+      $format.push h
+    else
+      i = 0
+      while i < member["array"]["num"] do
+        p = sprintf("[%d]",i)
+        if prefix == "" then
+          s = member["label"]
+        else
+          s = prefix + suffix + "." + member["label"]
+        end
+        format_convert(member["array"]["format"], s, p)
+        i = i+1
+      end
+    end
+  end
+end
+
 def data_convert(argv)
   option_parse(argv)
   ret = format_schema_validation($formatfilename)
@@ -173,45 +230,23 @@ def data_convert(argv)
   end
   # pattern
 
+  pattern = nil
+
   $yaml_data.each do |ptn|
     if ptn["patternname"] == $patternname then
-      $pattern = ptn["format"]
+      pattern = ptn["format"]
     end
   end
 
-  if $pattern == nil then
+  if pattern == nil then
     $stderr_str.push "Error: pattern not found\n"
     $stderr_str.push sprintf("\tformatfile = \"%s\", patternname = \"%s\"\n",$formatfilename,$patternname)
     return 1
   end
 
-  header = []
-  format = []
+  $format = []
 
-  $pattern.each do |member|
-    case member["type"]
-    when *$DUMMY
-    else
-      if member["array"] == nil then
-        header.push member["label"]
-      else
-        i = 0
-        while i < member["array"] do
-          header.push sprintf("%s[%d]", member["label"], i);
-          i += 1
-        end
-      end
-    end
-    if member["array"] == nil then
-      array = 1
-    else
-      array = member["array"]
-    end
-    h = Hash.new([])
-    h["type"] = member["type"]
-    h["array"] = array
-    format.push h
-  end
+  format_convert(pattern,"","")
 
   # convert
 
@@ -231,35 +266,40 @@ def data_convert(argv)
     return 1
   end
 
+  header = []
+  $format.each do |fmt|
+    case fmt["type"]
+    when *$DUMMY
+    else
+      header.push fmt["label"]
+    end
+  end
+
+
   out_str = header.join("\t") + "\n"
   o_file.write out_str
 
   while binary.size > 0 do
     str = []
     
-    format.each do |fmt|
+    $format.each do |fmt|
       f = $FORMAT_STR[fmt["type"]]
-      i = 0
-      j = fmt["array"]
-      while j > i do
-        length = f["length"]
-        if binary.size < length then
-          binary = [] # while を抜けるため
-          break;
-        end
-        template = f[$endian]
-        data = binary.unpack(template)
-        num = data.pack(f["pack"]).unpack(f["unpack"])
-        case fmt["type"]
-        when *$DUMMY
-        else
-          str.push sprintf(f["sprintf"], num[0])
-        end
-        cut = data.pack(template)
-        binary2 = binary[cut.size..binary.size]
-        binary = binary2
-        i += 1
+      length = f["length"]
+      if binary.size < length then
+        binary = [] # while を抜けるため
+        break;
       end
+      template = f[$endian]
+      data = binary.unpack(template)
+      num = data.pack(f["pack"]).unpack(f["unpack"])
+      case fmt["type"]
+      when *$DUMMY
+      else
+        str.push sprintf(f["sprintf"], num[0])
+      end
+      cut = data.pack(template)
+      binary2 = binary[cut.size..binary.size]
+      binary = binary2
     end
     
     out_str = str.join("\t") + "\n"
@@ -526,7 +566,6 @@ def start_gui
 
   Tk.mainloop
 end
-
 
 if ARGV.empty? then
   start_gui
