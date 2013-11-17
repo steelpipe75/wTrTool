@@ -34,8 +34,8 @@ $inputfilename = "MemTrace.dat"
 $outputfilename = "MemTool.txt"
 $formatfilename = "wTrToolFormat.yaml"
 $patternname = "sample"
-$pattern = nil
 $endian = "little"
+$format = []
 
 $FORMAT_STR = { 
   "UINT8"   => {"little" => "C", "big" => "C", "pack" =>"C", "unpack" =>"C", "sprintf" => "%d",  "length" => 1},
@@ -191,6 +191,37 @@ def format_schema_validation(fmt_file)
   end
 end
 
+def format_convert(pattern,prefix,suffix)
+  pattern.each do |member|
+    if member["array"] == nil then
+      h = Hash.new([])
+      h["type"] = member["type"]
+      if suffix == "" then
+        h["label"] = prefix + member["label"]
+      else
+        if member["label"] == "" then
+          h["label"] = prefix + suffix
+        else
+          h["label"] = prefix + suffix + "." + member["label"]
+        end
+      end
+      $format.push h
+    else
+      i = 0
+      while i < member["array"]["num"] do
+        p = sprintf("[%d]",i)
+        if prefix == "" then
+          s = member["label"]
+        else
+          s = prefix + suffix + "." + member["label"]
+        end
+        format_convert(member["array"]["format"], s, p)
+        i = i+1
+      end
+    end
+  end
+end
+
 def data_convert(argv)
   option_parse(argv)
   ret = format_schema_validation($formatfilename)
@@ -199,45 +230,26 @@ def data_convert(argv)
   end
   # pattern
 
+  pattern = nil
+
   $yaml_data.each do |ptn|
     if ptn["patternname"] == $patternname then
-      $pattern = ptn["format"]
+      pattern = ptn["format"]
     end
   end
 
-  if $pattern == nil then
+  if pattern == nil then
     $stderr_str.push "Error: pattern not found\n"
     $stderr_str.push sprintf("\tformatfile = \"%s\", patternname = \"%s\"\n",$formatfilename,$patternname)
     return 1
   end
 
   header = []
-  format = []
+  $format = []
 
-  $pattern.each do |member|
-    case member["type"]
-    when *$DUMMY
-    else
-      if member["array"] == nil then
-        header.push member["label"]
-      else
-        i = 0
-        while i < member["array"]["num"] do
-          header.push sprintf("%s[%d]", member["label"], i);
-          i += 1
-        end
-      end
-    end
-    if member["array"] == nil then
-      array = 1
-    else
-      array = member["array"]
-    end
-    h = Hash.new([])
-    h["type"] = member["type"]
-    h["array"] = array
-    format.push h
-  end
+  format_convert(pattern,"","")
+
+# pp $format
 
   # convert
 
@@ -263,7 +275,7 @@ def data_convert(argv)
   while binary.size > 0 do
     str = []
     
-    format.each do |fmt|
+    $format.each do |fmt|
       f = $FORMAT_STR[fmt["type"]]
       i = 0
       j = fmt["array"]
@@ -297,6 +309,7 @@ def data_convert(argv)
   return 0
 end
 
+=begin
 def getopenformatfile
   return Tk.getOpenFile('title' => 'ファイルを開く',
                         'defaultextension' => 'sgf', 
@@ -552,11 +565,11 @@ def start_gui
 
   Tk.mainloop
 end
+=end
 
-
-if ARGV.empty? then
-  start_gui
-else
+#if ARGV.empty? then
+# start_gui
+#else
   $stdout_str = []
   $stderr_str = []
   ret = data_convert(ARGV)
@@ -573,4 +586,4 @@ else
   else
     puts "Success"
   end
-end
+#end

@@ -8,7 +8,7 @@
 		  array:
 			num: 2
 			format:
-				- { type: UINT16,  label: c }
+				- { type: UINT16,  label: "" }
 -
 	patternname:	type_sample
 	description:	typeで選べる選択肢のリストアップ
@@ -44,5 +44,5 @@
 				  array:
 					num: 2
 					format:
-						- { label: UINT8, type: UINT8 }
+						- { label: c, type: UINT8 }
 
