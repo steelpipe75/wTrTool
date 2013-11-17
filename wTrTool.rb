@@ -311,7 +311,6 @@ def data_convert(argv)
   return 0
 end
 
-=begin
 def getopenformatfile
   return Tk.getOpenFile('title' => 'ファイルを開く',
                         'defaultextension' => 'sgf', 
@@ -567,11 +566,10 @@ def start_gui
 
   Tk.mainloop
 end
-=end
 
-#if ARGV.empty? then
-# start_gui
-#else
+if ARGV.empty? then
+  start_gui
+else
   $stdout_str = []
   $stderr_str = []
   ret = data_convert(ARGV)
@@ -588,4 +586,4 @@ end
   else
     puts "Success"
   end
-#end
+end
