@@ -169,9 +169,9 @@ def format_schema_validation(fmt_file)
   yaml = ""
 
   f_file.each_line do |line|
-    while /\t+/u =~ line
+    while /\t+/ =~ line
       n = $&.size * 8 - $`.size % 8
-      line.sub!(/\t+/u, " " * n)
+      line.sub!(/\t+/, " " * n)
     end
     yaml << line
   end
