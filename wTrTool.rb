@@ -276,7 +276,7 @@ def data_convert(argv)
   end
 
 
-  out_str = header.join("\t") + "\n"
+  out_str = header.join(",") + "\n"
   o_file.write out_str
 
   while binary.size > 0 do
@@ -302,7 +302,7 @@ def data_convert(argv)
       binary = binary2
     end
     
-    out_str = str.join("\t") + "\n"
+    out_str = str.join(",") + "\n"
     
     o_file.write out_str
   end
