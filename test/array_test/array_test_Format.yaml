@@ -1,0 +1,12 @@
+-
+	patternname:	array_test
+	description:	配列テスト用
+	format:
+		- { label: a, type: UINT8 }
+		- { label: b, type: SINT8 }
+		- label: c
+		  array: 
+			num: 2
+			format:
+				- { label: "", type: UINT16 }
+

@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 		UINT8	a;
 		SINT8	b;
 		UINT16	c[2];
-	} test_data[ARRAY_MAX],crr_dat;
+	} crr_dat;
 	int i;
 	
 	
@@ -44,14 +44,13 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 	
-	fprintf(txt_fp,"a\tb\tc[0]\tc[1]\n");
+	fprintf(txt_fp,"a,b,c[0],c[1]\n");
 	for(i = 0; i < ARRAY_MAX; i++){
 		crr_dat.a = i;
 		crr_dat.b = i*(-2);
 		crr_dat.c[0] = i*512;
 		crr_dat.c[1] = i*2048;
-		test_data[i] = crr_dat;
-		fprintf(txt_fp,"%d\t%d\t%d\t%d\n",crr_dat.a,crr_dat.b,crr_dat.c[0],crr_dat.c[1]);
+		fprintf(txt_fp,"%d,%d,%d,%d\n",crr_dat.a,crr_dat.b,crr_dat.c[0],crr_dat.c[1]);
 		fwrite(&crr_dat, sizeof(crr_dat), 1, bin_fp);
 	}
 	
