@@ -107,6 +107,7 @@ sequence:
                 mapping:
                   "num":
                     type: int
+                    required: true
                     range: { min: 1 }
                   "format": *format-rule
 EOS
