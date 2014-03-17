@@ -33,7 +33,7 @@ Version = "v1.5a"
 $inputfilename = "MemTrace.dat"
 $outputfilename = "MemTool.txt"
 $formatfilename = "wTrToolFormat.yaml"
-$patternname = "sample"
+$patternname = "u"
 $endian = "little"
 $format = []
 
@@ -117,6 +117,7 @@ sequence:
                     mapping:
                       "label":
                         type: str
+                        required: true
                       "format": *format-rule
 EOS
 
@@ -202,7 +203,18 @@ end
 
 def format_convert(format,pattern,prefix,suffix)
   pattern.each do |member|
-    if member["array"] != nil then
+    if member["union"] != nil then
+      union_format = Hash.new([])
+      union_format["union"] = member["label"]
+      union_format["format"] = []
+      member["union"].each do |m|
+        union_member_format = []
+        pre = (prefix == "" ? ("") : (prefix + ".")) + member["label"] + "." + m["label"] + "."
+        format_convert(union_member_format,m["format"], pre, suffix)
+        union_format["format"].push union_member_format
+      end
+      format.push union_format
+    elsif member["array"] != nil then
       i = 0
       while i < member["array"]["num"] do
         suf = sprintf("[%d]",i)
