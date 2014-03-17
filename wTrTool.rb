@@ -33,7 +33,7 @@ Version = "v1.5a"
 $inputfilename = "MemTrace.dat"
 $outputfilename = "MemTool.txt"
 $formatfilename = "wTrToolFormat.yaml"
-$patternname = "u"
+$patternname = "sample"
 $endian = "little"
 $format = []
 
@@ -200,9 +200,21 @@ def format_schema_validation(fmt_file)
   end
 end
 
-def format_convert(pattern,prefix,suffix)
+def format_convert(format,pattern,prefix,suffix)
   pattern.each do |member|
-    if member["array"] == nil then
+    if member["array"] != nil then
+      i = 0
+      while i < member["array"]["num"] do
+        p = sprintf("[%d]",i)
+        if prefix == "" then
+          s = member["label"]
+        else
+          s = prefix + suffix + "." + member["label"]
+        end
+        format_convert(format,member["array"]["format"], s, p)
+        i = i+1
+      end
+    else
       h = Hash.new([])
       h["type"] = member["type"]
       if suffix == "" then
@@ -214,19 +226,7 @@ def format_convert(pattern,prefix,suffix)
           h["label"] = prefix + suffix + "." + member["label"]
         end
       end
-      $format.push h
-    else
-      i = 0
-      while i < member["array"]["num"] do
-        p = sprintf("[%d]",i)
-        if prefix == "" then
-          s = member["label"]
-        else
-          s = prefix + suffix + "." + member["label"]
-        end
-        format_convert(member["array"]["format"], s, p)
-        i = i+1
-      end
+      format.push h
     end
   end
 end
@@ -255,7 +255,11 @@ def data_convert(argv)
 
   $format = []
 
-  format_convert(pattern,"","")
+  format_convert($format,pattern,"","")
+
+  p "================================================================================"
+  pp $format
+  p "================================================================================"
 
   # convert
 
