@@ -121,6 +121,9 @@ sequence:
                       "format": *format-rule
 EOS
 
+$UNION_FORMAT = Struct.new("Union_format",:label,:format)
+$MEMBER = Struct.new("Member", :type,:label)
+
 $yaml_data = nil
 $stdout_str = []
 $stderr_str = []
@@ -204,7 +207,6 @@ end
 def format_convert(format,pattern,prefix,suffix)
   pattern.each do |member|
     if member["union"] != nil then
-      union_format = Struct.new("Union_format",:label,:format)
       a = []
       member["union"].each do |m|
         union_member_format = []
@@ -212,7 +214,7 @@ def format_convert(format,pattern,prefix,suffix)
         format_convert(union_member_format,m["format"], pre, suffix)
         a.push union_member_format
       end
-      uf = union_format.new(member["label"],a)
+      uf = $UNION_FORMAT.new(member["label"],a)
       format.push uf
     elsif member["array"] != nil then
       i = 0
@@ -227,7 +229,6 @@ def format_convert(format,pattern,prefix,suffix)
         i = i+1
       end
     else
-      m = Struct.new("Member", :type,:label)
       type = member["type"]
       if suffix == "" then
         label = prefix + member["label"]
@@ -238,8 +239,25 @@ def format_convert(format,pattern,prefix,suffix)
           label = prefix + suffix + "." + member["label"]
         end
       end
-      h = m.new(type,label)
+      h = $MEMBER.new(type,label)
       format.push h
+    end
+  end
+end
+
+def make_header_str(header,format)
+  case format
+  when Array
+    format.each do |fmt|
+      make_header_str(header,fmt)
+    end
+  when $UNION_FORMAT
+    make_header_str(header,format["format"])
+  when $MEMBER
+    case format["type"]
+    when *$DUMMY
+    else
+      header.push format["label"]
     end
   end
 end
@@ -304,14 +322,14 @@ def data_convert(argv)
   end
 
   header = []
-  $format.each do |fmt|
-    case fmt["type"]
-    when *$DUMMY
-    else
-      header.push fmt["label"]
-    end
-  end
+  make_header_str(header,$format)
 
+  p "--------------------------------------------------------------------------------"
+  pp header
+  p "--------------------------------------------------------------------------------"
+
+  $stderr_str.push "Error: TEST\n"
+  return 1
 
   out_str = header.join(",") + "\n"
   o_file.write out_str
