@@ -33,7 +33,7 @@ Version = "v1.5a"
 $inputfilename = "MemTrace.dat"
 $outputfilename = "MemTool.txt"
 $formatfilename = "wTrToolFormat.yaml"
-$patternname = "sample"
+$patternname = "u"
 $endian = "little"
 $format = []
 
@@ -110,6 +110,14 @@ sequence:
                     required: true
                     range: { min: 1 }
                   "format": *format-rule
+              "union":
+                type: seq
+                sequence:
+                  - type: map
+                    mapping:
+                      "label":
+                        type: str
+                      "format": *format-rule
 EOS
 
 $yaml_data = nil
@@ -568,9 +576,9 @@ def start_gui
   Tk.mainloop
 end
 
-if ARGV.empty? then
-  start_gui
-else
+#if ARGV.empty? then
+#  start_gui
+#else
   $stdout_str = []
   $stderr_str = []
   ret = data_convert(ARGV)
@@ -587,4 +595,4 @@ else
   else
     puts "Success"
   end
-end
+#end
