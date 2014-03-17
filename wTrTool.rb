@@ -205,13 +205,13 @@ def format_convert(format,pattern,prefix,suffix)
     if member["array"] != nil then
       i = 0
       while i < member["array"]["num"] do
-        p = sprintf("[%d]",i)
+        suf = sprintf("[%d]",i)
         if prefix == "" then
-          s = member["label"]
+          pre = member["label"]
         else
-          s = prefix + suffix + "." + member["label"]
+          pre = prefix + suffix + "." + member["label"]
         end
-        format_convert(format,member["array"]["format"], s, p)
+        format_convert(format,member["array"]["format"], pre, suf)
         i = i+1
       end
     else
