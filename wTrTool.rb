@@ -261,6 +261,11 @@ def data_convert(argv)
   pp $format
   p "================================================================================"
 
+  if $format == [] then
+    $stderr_str.push "Error: invalid pattern\n"
+    return 1
+  end
+
   # convert
 
   begin
