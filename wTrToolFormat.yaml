@@ -46,3 +46,17 @@
 					format:
 						- { label: c, type: UINT8 }
 
+-
+	patternname:	u
+	description:	共用体のサンプル
+	format:
+		- label: a
+		  union:
+			- label: u8_2
+			  format:
+				- { label: a, type: UINT8 }
+				- { label: b, type: UINT8 }
+			- label: u16_1
+			  format:
+				- { label: c, type: UINT16 }
+
