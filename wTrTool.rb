@@ -204,16 +204,16 @@ end
 def format_convert(format,pattern,prefix,suffix)
   pattern.each do |member|
     if member["union"] != nil then
-      union_format = Hash.new([])
-      union_format["union"] = member["label"]
-      union_format["format"] = []
+      union_format = Struct.new("Union_format",:label,:format)
+      a = []
       member["union"].each do |m|
         union_member_format = []
         pre = (prefix == "" ? ("") : (prefix + ".")) + member["label"] + "." + m["label"] + "."
         format_convert(union_member_format,m["format"], pre, suffix)
-        union_format["format"].push union_member_format
+        a.push union_member_format
       end
-      format.push union_format
+      uf = union_format.new(member["label"],a)
+      format.push uf
     elsif member["array"] != nil then
       i = 0
       while i < member["array"]["num"] do
@@ -227,17 +227,18 @@ def format_convert(format,pattern,prefix,suffix)
         i = i+1
       end
     else
-      h = Hash.new([])
-      h["type"] = member["type"]
+      m = Struct.new("Member", :type,:label)
+      type = member["type"]
       if suffix == "" then
-        h["label"] = prefix + member["label"]
+        label = prefix + member["label"]
       else
         if member["label"] == "" then
-          h["label"] = prefix + suffix
+          label = prefix + suffix
         else
-          h["label"] = prefix + suffix + "." + member["label"]
+          label = prefix + suffix + "." + member["label"]
         end
       end
+      h = m.new(type,label)
       format.push h
     end
   end
@@ -271,6 +272,12 @@ def data_convert(argv)
 
   p "================================================================================"
   pp $format
+  p "================================================================================"
+  pp $format.class
+  p "================================================================================"
+  $format.each do |f|
+    pp f.class
+  end
   p "================================================================================"
 
   if $format == [] then
