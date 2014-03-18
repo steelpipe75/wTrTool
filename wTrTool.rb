@@ -33,7 +33,7 @@ Version = "v1.5a"
 $inputfilename = "MemTrace.dat"
 $outputfilename = "MemTool.txt"
 $formatfilename = "wTrToolFormat.yaml"
-$patternname = "u"
+$patternname = "array_sample"
 $endian = "little"
 $format = []
 
@@ -262,6 +262,30 @@ def make_header_str(header,format)
   end
 end
 
+def make_convert_str(str,binary,format)
+  $format.each do |fmt|
+    pp fmt
+    f = $FORMAT_STR[fmt["type"]]
+    length = f["length"]
+    if binary.size < length then
+      binary = [] # while を抜けるため
+      break;
+    end
+    template = f[$endian]
+    data = binary.unpack(template)
+    num = data.pack(f["pack"]).unpack(f["unpack"])
+    case fmt["type"]
+    when *$DUMMY
+    else
+      str.push sprintf(f["sprintf"], num[0])
+    end
+    cut = data.pack(template)
+    binary2 = binary[cut.size..binary.size]
+    binary = binary2
+  end
+  return binary
+end
+
 def data_convert(argv)
   option_parse(argv)
   ret = format_schema_validation($formatfilename)
@@ -328,34 +352,17 @@ def data_convert(argv)
   pp header
   p "--------------------------------------------------------------------------------"
 
-  $stderr_str.push "Error: TEST\n"
-  return 1
-
   out_str = header.join(",") + "\n"
   o_file.write out_str
 
   while binary.size > 0 do
     str = []
     
-    $format.each do |fmt|
-      f = $FORMAT_STR[fmt["type"]]
-      length = f["length"]
-      if binary.size < length then
-        binary = [] # while を抜けるため
-        break;
-      end
-      template = f[$endian]
-      data = binary.unpack(template)
-      num = data.pack(f["pack"]).unpack(f["unpack"])
-      case fmt["type"]
-      when *$DUMMY
-      else
-        str.push sprintf(f["sprintf"], num[0])
-      end
-      cut = data.pack(template)
-      binary2 = binary[cut.size..binary.size]
-      binary = binary2
-    end
+    binary = make_convert_str(str,binary,$format)
+    
+    p "================================================================================"
+    pp str
+    p "================================================================================"
     
     out_str = str.join(",") + "\n"
     
