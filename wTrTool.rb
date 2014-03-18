@@ -33,7 +33,7 @@ Version = "v1.5a"
 $inputfilename = "MemTrace.dat"
 $outputfilename = "MemTool.txt"
 $formatfilename = "wTrToolFormat.yaml"
-$patternname = "array_sample"
+$patternname = "union_sample"
 $endian = "little"
 $format = []
 
@@ -263,18 +263,31 @@ def make_header_str(header,format)
 end
 
 def make_convert_str(str,binary,format)
-  $format.each do |fmt|
-    pp fmt
-    f = $FORMAT_STR[fmt["type"]]
+  case format
+  when Array
+    format.each do |fmt|
+      binary = make_convert_str(str,binary,fmt)
+    end
+  when $UNION_FORMAT
+    min_binary = binary
+    format["format"].each do |fmt|
+      tmp_binary = make_convert_str(str,binary,fmt)
+      if min_binary.size > tmp_binary.size then
+        min_binary = tmp_binary
+      end
+    end
+    return min_binary
+  when $MEMBER
+    f = $FORMAT_STR[format["type"]]
     length = f["length"]
     if binary.size < length then
       binary = [] # while を抜けるため
-      break;
+      return binary
     end
     template = f[$endian]
     data = binary.unpack(template)
     num = data.pack(f["pack"]).unpack(f["unpack"])
-    case fmt["type"]
+    case format["type"]
     when *$DUMMY
     else
       str.push sprintf(f["sprintf"], num[0])
