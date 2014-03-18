@@ -47,10 +47,10 @@
 						- { label: c, type: UINT8 }
 
 -
-	patternname:	u
+	patternname:	union_sample
 	description:	共用体のサンプル
 	format:
-		- label: a
+		- label: x
 		  union:
 			- label: u8_2
 			  format:
