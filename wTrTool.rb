@@ -33,7 +33,7 @@ Version = "v1.5a"
 $inputfilename = "MemTrace.dat"
 $outputfilename = "MemTool.txt"
 $formatfilename = "wTrToolFormat.yaml"
-$patternname = "union_sample"
+$patternname = "sample"
 $endian = "little"
 $format = []
 
@@ -325,16 +325,6 @@ def data_convert(argv)
 
   format_convert($format,pattern,"","")
 
-  p "================================================================================"
-  pp $format
-  p "================================================================================"
-  pp $format.class
-  p "================================================================================"
-  $format.each do |f|
-    pp f.class
-  end
-  p "================================================================================"
-
   if $format == [] then
     $stderr_str.push "Error: invalid pattern\n"
     return 1
@@ -361,10 +351,6 @@ def data_convert(argv)
   header = []
   make_header_str(header,$format)
 
-  p "--------------------------------------------------------------------------------"
-  pp header
-  p "--------------------------------------------------------------------------------"
-
   out_str = header.join(",") + "\n"
   o_file.write out_str
 
@@ -372,10 +358,6 @@ def data_convert(argv)
     str = []
     
     binary = make_convert_str(str,binary,$format)
-    
-    p "================================================================================"
-    pp str
-    p "================================================================================"
     
     out_str = str.join(",") + "\n"
     
@@ -642,9 +624,9 @@ def start_gui
   Tk.mainloop
 end
 
-#if ARGV.empty? then
-#  start_gui
-#else
+if ARGV.empty? then
+  start_gui
+else
   $stdout_str = []
   $stderr_str = []
   ret = data_convert(ARGV)
@@ -661,4 +643,4 @@ end
   else
     puts "Success"
   end
-#end
+end
