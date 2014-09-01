@@ -28,13 +28,14 @@ require 'tk'
 
 # parameter
 
-Version = "v1.5"
+Version = "v1.6"
 
 $inputfilename = "MemTrace.dat"
 $outputfilename = "MemTool.txt"
 $formatfilename = "wTrToolFormat.yaml"
 $patternname = "sample"
 $endian = "little"
+$delimiter = ","
 $format = []
 
 $FORMAT_STR = { 
@@ -137,6 +138,7 @@ def option_parse(argv)
   opt.on('-p patternname','--pattern patternname','整形パターン名指定') { |v| $patternname = v }
   opt.on('-l',            '--littleend',          '多バイトデータをlittle endianとして扱う') { $endian = "little" }
   opt.on('-b',            '--bigend',             '多バイトデータをbig endianとして扱う') { $endian = "big" }
+  opt.on('-d delimiter',  '--delimiter delimiter','デリミタ指定') { |v| $delimiter = v }
 
   opt.parse(argv)
 
@@ -144,6 +146,10 @@ def option_parse(argv)
   $stdout_str.push sprintf("outputfile\t= \"%s\"\n",$outputfilename)
   $stdout_str.push sprintf("formatfile\t= \"%s\"\n",$formatfilename)
   $stdout_str.push sprintf("patternname\t= \"%s\"\n",$patternname)
+  $stdout_str.push sprintf("delimiter\t= \"%s\"\n",$delimiter)
+  if $delimiter == "\\t" || $delimiter == "\\T" then
+    $delimiter = "\t"
+  end
 end
 
 class FormatValidator < Kwalify::Validator
@@ -351,7 +357,7 @@ def data_convert(argv)
   header = []
   make_header_str(header,$format)
 
-  out_str = header.join(",") + "\n"
+  out_str = header.join($delimiter) + "\n"
   o_file.write out_str
 
   while binary.size > 0 do
@@ -359,7 +365,7 @@ def data_convert(argv)
     
     binary = make_convert_str(str,binary,$format)
     
-    out_str = str.join(",") + "\n"
+    out_str = str.join($delimiter) + "\n"
     
     o_file.write out_str
   end
