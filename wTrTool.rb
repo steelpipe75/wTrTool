@@ -138,9 +138,9 @@ def option_parse(argv)
   opt.on('-l',            '--littleend',          '多バイトデータをlittle endianとして扱う') { $endian = "little" }
   opt.on('-b',            '--bigend',             '多バイトデータをbig endianとして扱う') { $endian = "big" }
   opt.on('-d delimiter',  '--delimiter delimiter','デリミタ指定') { |v| $delimiter = v }
-
+  
   opt.parse(argv)
-
+  
   $stdout_str.push sprintf("inputfile\t= \"%s\"\n",$inputfilename)
   $stdout_str.push sprintf("outputfile\t= \"%s\"\n",$outputfilename)
   $stdout_str.push sprintf("formatfile\t= \"%s\"\n",$formatfilename)
@@ -153,11 +153,11 @@ end
 
 class FormatValidator < Kwalify::Validator
   @@schema = YAML.load($SCHEMA_DEF)
-
+  
   def initialize()
     super(@@schema)
   end
-
+  
   def validate_hook(value, rule, path, errors)
     case rule.name
     when "format_member"
@@ -169,13 +169,12 @@ class FormatValidator < Kwalify::Validator
       end
     end
   end
-
 end
 
 # schema validation
 def format_schema_validation(fmt_file)
   validator = FormatValidator.new
-
+  
   begin
     f_file = File.read(fmt_file)
   rescue => ex
@@ -183,9 +182,9 @@ def format_schema_validation(fmt_file)
     $stderr_str.push sprintf("\t%s\n" ,ex.message)
     return 1
   end
-
+  
   yaml = ""
-
+  
   f_file.each_line do |line|
     while /\t+/ =~ line
       n = $&.size * 8 - $`.size % 8
@@ -193,10 +192,10 @@ def format_schema_validation(fmt_file)
     end
     yaml << line
   end
-
+  
   parser = Kwalify::Parser.new(yaml)
   $yaml_data = parser.parse()
-
+  
   errors = validator.validate($yaml_data)
   if !errors || errors.empty? then
   else
@@ -311,32 +310,32 @@ def data_convert(argv)
     return 1
   end
   # pattern
-
+  
   pattern = nil
-
+  
   $yaml_data.each do |ptn|
     if ptn["patternname"] == $patternname then
       pattern = ptn["format"]
     end
   end
-
+  
   if pattern == nil then
     $stderr_str.push "Error: pattern not found\n"
     $stderr_str.push sprintf("\tformatfile = \"%s\", patternname = \"%s\"\n",$formatfilename,$patternname)
     return 1
   end
-
+  
   $format = []
-
+  
   format_convert($format,pattern,"","")
-
+  
   if $format == [] then
     $stderr_str.push "Error: invalid pattern\n"
     return 1
   end
-
+  
   # convert
-
+  
   begin
     binary = File.binread($inputfilename)
   rescue => ex
@@ -344,7 +343,7 @@ def data_convert(argv)
     $stderr_str.push sprintf("\t%s\n" ,ex.message)
     return 1
   end
-
+  
   begin
     o_file = File.open($outputfilename,"w")
   rescue => ex
@@ -352,13 +351,13 @@ def data_convert(argv)
     $stderr_str.push sprintf("\t%s\n" ,ex.message)
     return 1
   end
-
+  
   header = []
   make_header_str(header,$format)
-
+  
   out_str = header.join($delimiter) + "\n"
   o_file.write out_str
-
+  
   while binary.size > 0 do
     str = []
     
@@ -368,7 +367,7 @@ def data_convert(argv)
     
     o_file.write out_str
   end
-
+  
   o_file.close
   return 0
 end
